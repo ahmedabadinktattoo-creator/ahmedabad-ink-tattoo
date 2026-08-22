@@ -31,7 +31,7 @@ export function SiteHeader() {
           {links.map(([label, href]) => (
             <Link key={label} href={href} className={pathname === href ? "active" : ""} onClick={() => setOpen(false)}>{label}</Link>
           ))}
-          <Link className="nav-cta" href="/#book" onClick={() => setOpen(false)}>Book consultation</Link>
+          <Link className="nav-cta" href="/book" onClick={() => setOpen(false)}>Book consultation</Link>
         </nav>
       </div>
     </header>

@@ -22,7 +22,7 @@ export default function Home() {
           <p className="eyebrow">Premium tattoo studio · Ahmedabad</p>
           <h1>Wear your<br /><em>story.</em></h1>
           <p className="hero-lede">Original art. Experienced hands. A private, considered tattoo experience built around you.</p>
-          <div className="button-row"><Link className="button gold" href="#book">Book a consultation</Link><Link className="text-link" href="/portfolio">Explore our work <span>↗</span></Link></div>
+          <div className="button-row"><Link className="button gold" href="/book">Book a consultation</Link><Link className="text-link" href="/portfolio">Explore our work <span>↗</span></Link></div>
         </div>
         <p className="hero-side">Custom tattooing · Since 2014</p>
         <a className="scroll-cue" href="#studio">Scroll <span>↓</span></a>
@@ -62,7 +62,7 @@ export default function Home() {
 
       <section className="booking" id="book">
         <Image src="https://images.unsplash.com/photo-1542856391-010fb87dcfed?auto=format&fit=crop&w=2000&q=85" alt="Tattoo studio detail" fill sizes="100vw" />
-        <div className="booking-overlay" /><div className="booking-inner"><p className="eyebrow">Your idea starts here</p><h2>Let’s make something<br /><em>worth keeping.</em></h2><p>Tell us what you have in mind. We’ll help with the artist, style, placement and next steps.</p><a className="button gold" href="mailto:hello@ahmedabadink.com?subject=Tattoo%20consultation">Start your consultation</a></div>
+        <div className="booking-overlay" /><div className="booking-inner"><p className="eyebrow">Your idea starts here</p><h2>Let’s make something<br /><em>worth keeping.</em></h2><p>Tell us what you have in mind. We’ll help with the artist, style, placement and next steps.</p><Link className="button gold" href="/book">Start your consultation</Link></div>
       </section>
     </>
   );
