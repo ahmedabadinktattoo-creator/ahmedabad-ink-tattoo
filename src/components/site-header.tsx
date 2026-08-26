@@ -10,6 +10,7 @@ const links = [
   ["Portfolio", "/portfolio"],
   ["Process", "/#process"],
   ["Contact", "/#contact"],
+  ["My bookings", "/dashboard"],
 ] as const;
 
 export function SiteHeader() {

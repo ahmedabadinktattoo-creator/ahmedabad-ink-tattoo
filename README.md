@@ -12,6 +12,10 @@ A premium, responsive website for Ahmedabad Ink Tattoo, built with Next.js 15, R
 - Private tattoo-reference uploads backed by Supabase Storage
 - Razorpay deposit order creation and cryptographic payment verification
 - Resend email and optional WhatsApp Cloud API confirmations
+- Passwordless Supabase Auth for customers and studio administrators
+- Customer portal with appointment history, deposit details and aftercare
+- Role-protected admin dashboard with bookings, KPIs and revenue summary
+- CMS foundations for portfolio, artist profiles and blog posts
 - Responsive `next/image` delivery, route metadata, sitemap and robots directives
 - Accessible controls, semantic markup and reduced-motion support
 
@@ -31,6 +35,17 @@ Without credentials, the booking flow runs in clearly labelled preview mode. To 
 3. Configure Razorpay to send `payment.captured` events to `/api/payments/webhook`.
 4. Add the same `RAZORPAY_WEBHOOK_SECRET` to the site environment.
 5. Configure the approved `booking_confirmation` WhatsApp template if WhatsApp notifications are required.
+
+## Activate Sprint 4 dashboards
+
+1. Create a Supabase project and apply both migrations in timestamp order.
+2. Add the project URL and publishable key to the `NEXT_PUBLIC_SUPABASE_*` variables.
+3. Add the server-only project URL and service-role key to `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`.
+4. In Supabase Auth URL Configuration, add the production site URL and `/auth/callback` redirect URL.
+5. Create the owner account through `/login`, then set `app_metadata.role` to `admin` using the trusted SQL example at the bottom of the Sprint 4 migration.
+6. Refresh the owner session after changing the role so the new JWT claim is active.
+
+When Supabase is not configured, `/dashboard` and `/admin` intentionally show labelled preview data. Once configured, both routes require authentication and `/admin` additionally requires the immutable `app_metadata` admin role.
 
 Sensitive booking rows and reference images are server-only. The browser never receives the Supabase service-role key or Razorpay secret.
 

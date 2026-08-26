@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { bookingReference, depositPaise, parseBookingForm, validateReference } from "@/lib/bookings";
 import { getSupabaseAdmin, hasBookingBackend } from "@/lib/supabase-admin";
+import { createClient as createUserClient, hasPublicSupabase } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
@@ -30,6 +31,7 @@ export async function POST(request: Request) {
     if (!orderResponse.ok) throw new Error("Payment order could not be created.");
     const order = await orderResponse.json() as { id: string };
     const supabase = getSupabaseAdmin();
+    const user = hasPublicSupabase() ? (await (await createUserClient()).auth.getUser()).data.user : null;
     let referencePath: string | null = null;
 
     if (file) {
@@ -43,7 +45,7 @@ export async function POST(request: Request) {
       id, reference, customer_name: input.name, email: input.email, phone: input.phone,
       artist_slug: input.artistSlug, tattoo_style: input.style, appointment_date: input.appointmentDate,
       appointment_time: input.appointmentTime, placement: input.placement, approximate_size: input.size,
-      idea: input.idea, reference_path: referencePath, deposit_amount: depositPaise, razorpay_order_id: order.id,
+      idea: input.idea, reference_path: referencePath, deposit_amount: depositPaise, razorpay_order_id: order.id, user_id: user?.id ?? null,
     });
     if (error) {
       if (referencePath) await supabase.storage.from("booking-references").remove([referencePath]);

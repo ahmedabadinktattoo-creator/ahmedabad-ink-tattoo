@@ -1,0 +1,10 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { hasPublicSupabase, requireAdmin } from "@/lib/supabase/server";
+
+async function assertAdmin() { if (!hasPublicSupabase() || !await requireAdmin()) throw new Error("Administrator access required."); }
+export async function updateBookingStatus(formData: FormData) { await assertAdmin(); const id = String(formData.get("id")); const status = String(formData.get("status")); if (!new Set(["confirmed", "cancelled", "completed"]).has(status)) throw new Error("Invalid status."); const { error } = await getSupabaseAdmin().from("consultation_bookings").update({ status }).eq("id", id); if (error) throw new Error("Booking could not be updated."); revalidatePath("/admin"); }
+export async function addPortfolioEntry(formData: FormData) { await assertAdmin(); const title = String(formData.get("title") ?? "").trim(); const category = String(formData.get("category") ?? "").trim(); const imageUrl = String(formData.get("imageUrl") ?? "").trim(); if (!title || !category || !imageUrl.startsWith("https://")) throw new Error("Complete all portfolio fields."); const { error } = await getSupabaseAdmin().from("portfolio_entries").insert({ title, category, image_url: imageUrl, published: true }); if (error) throw new Error("Portfolio item could not be added."); revalidatePath("/admin"); revalidatePath("/portfolio"); }
+export async function addBlogPost(formData: FormData) { await assertAdmin(); const title = String(formData.get("title") ?? "").trim(); const slug = String(formData.get("slug") ?? "").trim().toLowerCase().replace(/[^a-z0-9-]/g, "-"); const excerpt = String(formData.get("excerpt") ?? "").trim(); if (!title || !slug || !excerpt) throw new Error("Complete all article fields."); const { error } = await getSupabaseAdmin().from("blog_posts").insert({ title, slug, excerpt, body: excerpt, published: false, author_id: (await requireAdmin())!.id }); if (error) throw new Error("Article could not be saved."); revalidatePath("/admin"); }
