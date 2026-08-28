@@ -53,12 +53,25 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="services-preview section-dark">
+        <div className="section-index">03 / Expertise</div>
+        <div className="services-preview-copy">
+          <p className="eyebrow gold-text">Created around you</p>
+          <h2>From first idea<br /><em>to healed art.</em></h2>
+          <p>Custom tattoo design, cover-up planning, fine line work, realism and thoughtful aftercare—handled by one experienced studio team.</p>
+          <Link className="line-link" href="/services">Explore services <span>↗</span></Link>
+        </div>
+        <div className="service-number-list">
+          {["Custom tattooing", "Cover-up transformation", "Fine line & minimal", "Realism & portrait", "Aftercare support"].map((service, index) => <Link href="/services" key={service}><span>0{index + 1}</span>{service}<b>↗</b></Link>)}
+        </div>
+      </section>
+
       <section className="home-artists section-dark">
         <div className="section-heading"><div><p className="eyebrow gold-text">The artists</p><h2>Different hands.<br /><em>One standard.</em></h2></div><p className="heading-note">Choose the artist whose work feels closest to the idea in your head.</p></div>
         <div className="artist-grid">{artists.map((artist, index) => <ArtistCard artist={artist} priority={index === 0} key={artist.slug} />)}</div>
       </section>
 
-      <section className="testimonial section"><p className="quote-mark">“</p><blockquote>From the consultation to the final reveal, I felt heard, safe and completely at ease. The tattoo is more beautiful than I imagined.</blockquote><p className="quote-by">— Studio client · Ahmedabad</p></section>
+      <section className="testimonial section"><p className="eyebrow gold-text">A considered experience</p><p className="quote-mark">“</p><blockquote>Your tattoo should feel personal before the first line is drawn—and cared for long after the final one.</blockquote><p className="quote-by">— The Ahmedabad Ink standard</p><Link className="line-link" href="/about">Discover our approach <span>↗</span></Link></section>
 
       <section className="booking" id="book">
         <Image src="https://images.unsplash.com/photo-1542856391-010fb87dcfed?auto=format&fit=crop&w=2000&q=85" alt="Tattoo studio detail" fill sizes="100vw" />

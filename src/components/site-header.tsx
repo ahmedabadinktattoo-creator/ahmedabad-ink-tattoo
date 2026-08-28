@@ -5,11 +5,13 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const links = [
-  ["Studio", "/#studio"],
+  ["Studio", "/about"],
   ["Artists", "/artists"],
   ["Portfolio", "/portfolio"],
-  ["Process", "/#process"],
-  ["Contact", "/#contact"],
+  ["Services", "/services"],
+  ["Aftercare", "/aftercare"],
+  ["Journal", "/blog"],
+  ["Contact", "/contact"],
   ["My bookings", "/dashboard"],
 ] as const;
 

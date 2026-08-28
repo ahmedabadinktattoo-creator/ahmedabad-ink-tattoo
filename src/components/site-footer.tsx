@@ -17,15 +17,17 @@ export function SiteFooter() {
           <p className="footer-label">Explore</p>
           <Link href="/artists">Artists</Link>
           <Link href="/portfolio">Portfolio</Link>
-          <Link href="/#process">Our process</Link>
+          <Link href="/services">Services</Link>
+          <Link href="/aftercare">Aftercare</Link>
+          <Link href="/faq">FAQ</Link>
         </div>
         <div>
           <p className="footer-label">Connect</p>
           <a href="https://www.instagram.com/ahmedabadinktattoo/" target="_blank" rel="noreferrer">Instagram ↗</a>
-          <a href="mailto:hello@ahmedabadink.com">Email us ↗</a>
+          <a href="mailto:hello@ahmedabadinktattoo.com">Email us ↗</a>
         </div>
       </div>
-      <div className="footer-bottom"><span>© {new Date().getFullYear()} Ahmedabad Ink Tattoo</span><span>Art with intention · Since 2014</span></div>
+      <div className="footer-bottom"><span>© {new Date().getFullYear()} Ahmedabad Ink Tattoo</span><span><Link href="/privacy">Privacy</Link> · <Link href="/terms">Terms</Link> · Art with intention since 2014</span></div>
     </footer>
   );
 }
