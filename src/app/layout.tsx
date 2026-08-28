@@ -26,8 +26,19 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     name: "Ahmedabad Ink Tattoo",
     url: "https://ahmedabadinktattoo.com",
     foundingDate: "2014",
+    telephone: "+91 88668 48681",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "FF/109, Silver Square, Opp. Dipak School, near Gangotri Circle Road, Sanidhya Park, Nikol",
+      addressLocality: "Ahmedabad",
+      addressRegion: "Gujarat",
+      postalCode: "382350",
+      addressCountry: "IN",
+    },
+    hasMap: "https://maps.app.goo.gl/9d6jgxtCMyuzmjDEA",
     areaServed: "Ahmedabad, Gujarat",
     sameAs: ["https://www.instagram.com/ahmedabadinktattoo/"],
+    logo: "https://ahmedabadinktattoo.com/logo.png",
     priceRange: "₹₹",
   };
   return (

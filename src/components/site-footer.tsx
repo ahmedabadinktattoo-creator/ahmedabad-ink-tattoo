@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export function SiteFooter() {
@@ -5,13 +6,14 @@ export function SiteFooter() {
     <footer className="footer" id="contact">
       <div className="footer-grid">
         <div>
-          <p className="eyebrow">Ahmedabad Ink</p>
+          <div className="footer-brand"><Image src="/logo.png" alt="Ahmedabad Ink Tattoo logo" width={72} height={72} /><p className="eyebrow">Ahmedabad Ink</p></div>
           <h2>Your story.<br />Made permanent.</h2>
         </div>
         <div>
           <p className="footer-label">Visit</p>
-          <address>Ahmedabad, Gujarat<br />India</address>
+          <address>FF/109, Silver Square<br />Opp. Dipak School, near Gangotri Circle Road<br />Nikol, Ahmedabad, Gujarat 382350</address>
           <p className="muted">Open daily · By appointment</p>
+          <a href="https://maps.app.goo.gl/9d6jgxtCMyuzmjDEA" target="_blank" rel="noreferrer">Open in Google Maps ↗</a>
         </div>
         <div>
           <p className="footer-label">Explore</p>
@@ -24,6 +26,7 @@ export function SiteFooter() {
         <div>
           <p className="footer-label">Connect</p>
           <a href="https://www.instagram.com/ahmedabadinktattoo/" target="_blank" rel="noreferrer">Instagram ↗</a>
+          <a href="https://wa.me/918866848681" target="_blank" rel="noreferrer">WhatsApp ↗</a>
           <a href="mailto:hello@ahmedabadinktattoo.com">Email us ↗</a>
         </div>
       </div>

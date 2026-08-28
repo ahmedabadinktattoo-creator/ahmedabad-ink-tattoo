@@ -71,7 +71,7 @@ export default function Home() {
         <div className="artist-grid">{artists.map((artist, index) => <ArtistCard artist={artist} priority={index === 0} key={artist.slug} />)}</div>
       </section>
 
-      <section className="testimonial section"><p className="eyebrow gold-text">A considered experience</p><p className="quote-mark">“</p><blockquote>Your tattoo should feel personal before the first line is drawn—and cared for long after the final one.</blockquote><p className="quote-by">— The Ahmedabad Ink standard</p><Link className="line-link" href="/about">Discover our approach <span>↗</span></Link></section>
+      <section className="testimonial section"><p className="eyebrow gold-text">A considered experience</p><p className="quote-mark">“</p><blockquote>Your tattoo should feel personal before the first line is drawn—and cared for long after the final one.</blockquote><p className="quote-by">— The Ahmedabad Ink standard</p><div className="review-links"><a className="line-link" href="https://www.google.com/maps/place/Ahemdabad+Ink+Tattoo+-+Tattoo+Shop,+Custom+Tattoo,+Tattoo+Artist,+Tattoo+Removal,+Tattoo+Studio+in+Nikol,+Ahmedabad/@23.0464305,72.6668693,1289m/data=!3m2!1e3!5s0x395e8471b91c3959:0x9c12d4a3ede9b5ff!4m8!3m7!1s0x395e871ebbaaaa9b:0xeadbd2a2fa415ffe!8m2!3d23.0464305!4d72.6668693!9m1!1b1!16s%2Fg%2F11cjkq27t2?entry=ttu" target="_blank" rel="noreferrer">Read genuine Google reviews <span>↗</span></a><Link className="line-link" href="/about">Our approach <span>↗</span></Link></div></section>
 
       <section className="booking" id="book">
         <Image src="https://images.unsplash.com/photo-1542856391-010fb87dcfed?auto=format&fit=crop&w=2000&q=85" alt="Tattoo studio detail" fill sizes="100vw" />

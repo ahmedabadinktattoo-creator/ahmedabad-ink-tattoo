@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -23,7 +24,7 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="nav-shell">
         <Link className="brand" href="/" aria-label="Ahmedabad Ink home" onClick={() => setOpen(false)}>
-          <span className="brand-mark">AI</span>
+          <span className="brand-mark"><Image src="/logo.png" alt="" width={40} height={40} priority /></span>
           <span>Ahmedabad Ink<small>Tattoo Studio · Since 2014</small></span>
         </Link>
         <button className="menu-button" type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-controls="site-nav">
