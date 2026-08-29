@@ -15,7 +15,7 @@ export default function Home() {
   return (
     <>
       <section className="hero">
-        <Image className="hero-image" src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=2000&q=90" alt="Tattoo artist working carefully in a dark studio" fill priority sizes="100vw" />
+        <Image className="hero-image" src="/studio/home-hero.webp" alt="Ahmedabad Ink Tattoo private tattoo room in Nikol" fill priority sizes="100vw" />
         <div className="hero-overlay" />
         <div className="hero-orbit" aria-hidden="true"><span>AHMEDABAD · INK · TATTOO · EST. 2014 · </span></div>
         <div className="hero-content">
