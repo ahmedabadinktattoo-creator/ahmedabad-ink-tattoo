@@ -39,6 +39,19 @@ export default function Home() {
         <div className="stat"><strong>10+</strong><span>Years of<br />craft</span></div>
       </section>
 
+      <section className="studio-gallery section-dark" aria-labelledby="studio-gallery-title">
+        <div className="studio-gallery-heading">
+          <div><p className="eyebrow gold-text">Inside Ahmedabad Ink</p><h2 id="studio-gallery-title">A calm space.<br /><em>Made for the work.</em></h2></div>
+          <p>Private consultation, dedicated tattoo stations and a welcoming studio in Nikol—photographed exactly as you’ll find it.</p>
+        </div>
+        <div className="studio-photo-grid">
+          <figure className="studio-photo studio-photo-wide"><Image src="/studio/consultation-lounge.webp" alt="Ahmedabad Ink Tattoo consultation lounge in Nikol" fill sizes="(max-width: 700px) 100vw, 66vw" /><figcaption>Consultation lounge</figcaption></figure>
+          <figure className="studio-photo studio-photo-tall"><Image src="/studio/studio-entrance.webp" alt="Entrance to Ahmedabad Ink Tattoo studio in Silver Square, Nikol" fill sizes="(max-width: 700px) 100vw, 34vw" /><figcaption>Silver Square, Nikol</figcaption></figure>
+          <figure className="studio-photo"><Image src="/studio/tattoo-room.webp" alt="Clean private tattoo room with professional tattoo bed and lighting" fill sizes="(max-width: 700px) 100vw, 50vw" /><figcaption>Dedicated tattoo room</figcaption></figure>
+          <figure className="studio-photo"><Image src="/studio/front-desk.webp" alt="Ahmedabad Ink Tattoo front desk and client seating area" fill sizes="(max-width: 700px) 100vw, 50vw" /><figcaption>Welcome desk</figcaption></figure>
+        </div>
+      </section>
+
       <section className="featured section-dark">
         <div className="section-heading"><div><p className="eyebrow gold-text">Selected work</p><h2>Ink with<br /><em>intention.</em></h2></div><Link className="line-link" href="/portfolio">View full portfolio <span>↗</span></Link></div>
         <div className="featured-grid">
@@ -74,7 +87,7 @@ export default function Home() {
       <section className="testimonial section"><p className="eyebrow gold-text">A considered experience</p><p className="quote-mark">“</p><blockquote>Your tattoo should feel personal before the first line is drawn—and cared for long after the final one.</blockquote><p className="quote-by">— The Ahmedabad Ink standard</p><div className="review-links"><a className="line-link" href="https://www.google.com/maps/place/Ahemdabad+Ink+Tattoo+-+Tattoo+Shop,+Custom+Tattoo,+Tattoo+Artist,+Tattoo+Removal,+Tattoo+Studio+in+Nikol,+Ahmedabad/@23.0464305,72.6668693,1289m/data=!3m2!1e3!5s0x395e8471b91c3959:0x9c12d4a3ede9b5ff!4m8!3m7!1s0x395e871ebbaaaa9b:0xeadbd2a2fa415ffe!8m2!3d23.0464305!4d72.6668693!9m1!1b1!16s%2Fg%2F11cjkq27t2?entry=ttu" target="_blank" rel="noreferrer">Read genuine Google reviews <span>↗</span></a><Link className="line-link" href="/about">Our approach <span>↗</span></Link></div></section>
 
       <section className="booking" id="book">
-        <Image src="https://images.unsplash.com/photo-1542856391-010fb87dcfed?auto=format&fit=crop&w=2000&q=85" alt="Tattoo studio detail" fill sizes="100vw" />
+        <Image src="/studio/tattoo-room.webp" alt="Ahmedabad Ink Tattoo private tattoo room" fill sizes="100vw" />
         <div className="booking-overlay" /><div className="booking-inner"><p className="eyebrow">Your idea starts here</p><h2>Let’s make something<br /><em>worth keeping.</em></h2><p>Tell us what you have in mind. We’ll help with the artist, style, placement and next steps.</p><Link className="button gold" href="/book">Start your consultation</Link></div>
       </section>
     </>
