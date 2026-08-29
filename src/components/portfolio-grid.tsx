@@ -8,11 +8,12 @@ export function PortfolioGrid() {
   const [category, setCategory] = useState<PortfolioCategory>("All");
   const deferredCategory = useDeferredValue(category);
   const visible = deferredCategory === "All" ? portfolio : portfolio.filter((item) => item.category === deferredCategory);
+  const availableCategories = portfolioCategories.filter((item) => item === "All" || portfolio.some((work) => work.category === item));
 
   return (
     <>
       <div className="filters" role="group" aria-label="Filter portfolio by style">
-        {portfolioCategories.map((item) => (
+        {availableCategories.map((item) => (
           <button key={item} type="button" aria-pressed={category === item} className={category === item ? "selected" : ""} onClick={() => setCategory(item)}>{item}</button>
         ))}
       </div>

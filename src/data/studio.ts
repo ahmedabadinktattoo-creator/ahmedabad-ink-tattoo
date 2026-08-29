@@ -22,15 +22,18 @@ export type PortfolioItem = {
 };
 
 export const portfolio: PortfolioItem[] = [
-  { id: 1, title: "The Quiet Roar", category: "Realism", artist: "Kartik", featured: true, image: "https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?auto=format&fit=crop&w=1200&q=85" },
-  { id: 2, title: "Sacred Geometry", category: "Mandala", artist: "Sachin", featured: true, image: "https://images.unsplash.com/photo-1590246814883-57c511e19706?auto=format&fit=crop&w=1200&q=85" },
-  { id: 3, title: "Botanical Study", category: "Fine Line", artist: "Manish", featured: true, image: "https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?auto=format&fit=crop&w=1200&q=85" },
-  { id: 4, title: "Inner Strength", category: "Portrait", artist: "Kartik", image: "https://images.unsplash.com/photo-1568515045052-f9a854d70bfd?auto=format&fit=crop&w=1200&q=85" },
-  { id: 5, title: "Dark Bloom", category: "Blackwork", artist: "Sachin", image: "https://images.unsplash.com/photo-1565058379802-bbe93b2f703a?auto=format&fit=crop&w=1200&q=85" },
-  { id: 6, title: "Small Stories", category: "Minimal", artist: "Manish", image: "https://images.unsplash.com/photo-1597852074816-d933c7d2b988?auto=format&fit=crop&w=1200&q=85" },
-  { id: 7, title: "New Chapter", category: "Cover Up", artist: "Kartik", image: "https://images.unsplash.com/photo-1542727365-19732a80dcfd?auto=format&fit=crop&w=1200&q=85" },
-  { id: 8, title: "Measured Chaos", category: "Geometric", artist: "Sachin", image: "https://images.unsplash.com/photo-1611331781158-733c4f6e6cd1?auto=format&fit=crop&w=1200&q=85" },
-  { id: 9, title: "Memory in Ink", category: "Portrait", artist: "Manish", image: "https://images.unsplash.com/photo-1598371839873-9681c5c4a9e4?auto=format&fit=crop&w=1200&q=85" },
+  { id: 1, title: "Guardian's Oath", category: "Realism", artist: "Ahmedabad Ink", featured: true, image: "/portfolio/lion-forearm.webp" },
+  { id: 2, title: "Sacred Palm", category: "Mandala", artist: "Ahmedabad Ink", featured: true, image: "/portfolio/mandala-hand.webp" },
+  { id: 3, title: "Axis", category: "Geometric", artist: "Ahmedabad Ink", featured: true, image: "/portfolio/geometric-back.webp" },
+  { id: 4, title: "Divine Focus", category: "Realism", artist: "Ahmedabad Ink", image: "/portfolio/ganesha-forearm.webp" },
+  { id: 5, title: "Gyana", category: "Portrait", artist: "Ahmedabad Ink", image: "/portfolio/child-portrait.webp" },
+  { id: 6, title: "Wild Colour", category: "Realism", artist: "Ahmedabad Ink", image: "/portfolio/colour-tiger.webp" },
+  { id: 7, title: "Night Watch", category: "Blackwork", artist: "Ahmedabad Ink", image: "/portfolio/blackwork-owl.webp" },
+  { id: 8, title: "Winter Geometry", category: "Geometric", artist: "Ahmedabad Ink", image: "/portfolio/blackwork-snowflake.webp" },
+  { id: 9, title: "Guided", category: "Fine Line", artist: "Ahmedabad Ink", image: "/portfolio/fine-line-arrow.webp" },
+  { id: 10, title: "Bloom in Red", category: "Fine Line", artist: "Ahmedabad Ink", image: "/portfolio/ankle-botanical.webp" },
+  { id: 11, title: "Lotus Rise", category: "Mandala", artist: "Ahmedabad Ink", image: "/portfolio/lotus-back.webp" },
+  { id: 12, title: "Quiet Branch", category: "Fine Line", artist: "Ahmedabad Ink", image: "/portfolio/fine-line-botanical.webp" },
 ];
 
 export type Artist = {
