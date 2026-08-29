@@ -48,7 +48,7 @@ export default function Home() {
           <figure className="studio-photo studio-photo-wide"><Image src="/studio/consultation-lounge.webp" alt="Ahmedabad Ink Tattoo consultation lounge in Nikol" fill sizes="(max-width: 700px) 100vw, 66vw" /><figcaption>Consultation lounge</figcaption></figure>
           <figure className="studio-photo studio-photo-tall"><Image src="/studio/studio-entrance.webp" alt="Entrance to Ahmedabad Ink Tattoo studio in Silver Square, Nikol" fill sizes="(max-width: 700px) 100vw, 34vw" /><figcaption>Silver Square, Nikol</figcaption></figure>
           <figure className="studio-photo"><Image src="/studio/tattoo-room.webp" alt="Clean private tattoo room with professional tattoo bed and lighting" fill sizes="(max-width: 700px) 100vw, 50vw" /><figcaption>Dedicated tattoo room</figcaption></figure>
-          <figure className="studio-photo"><Image src="/studio/front-desk.webp" alt="Ahmedabad Ink Tattoo front desk and client seating area" fill sizes="(max-width: 700px) 100vw, 50vw" /><figcaption>Welcome desk</figcaption></figure>
+          <figure className="studio-photo"><Image src="/studio/studio-sign.webp" alt="Ahmedabad Ink Tattoo storefront sign at Silver Square in Nikol" fill sizes="(max-width: 700px) 100vw, 33vw" /><figcaption>Ahmedabad Ink storefront</figcaption></figure>
         </div>
       </section>
 
