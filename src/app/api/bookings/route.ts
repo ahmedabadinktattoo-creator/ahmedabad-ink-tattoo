@@ -7,6 +7,9 @@ import { createClient as createUserClient, hasPublicSupabase } from "@/lib/supab
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
+  const startedAt = Date.now();
+  const requestId = request.headers.get("x-vercel-id") ?? randomUUID();
+  console.log(JSON.stringify({ level: "info", msg: "booking request started", route: "/api/bookings", requestId }));
   try {
     const formData = await request.formData();
     const input = parseBookingForm(formData);
@@ -16,7 +19,7 @@ export async function POST(request: Request) {
     const reference = bookingReference(id);
     const razorpayReady = Boolean(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET);
 
-    if (!hasBookingBackend() && !razorpayReady) {
+    if (!hasBookingBackend() && !razorpayReady && process.env.NODE_ENV !== "production") {
       return NextResponse.json({ demo: true, bookingId: id, reference, amount: depositPaise });
     }
     if (!hasBookingBackend() || !razorpayReady) {
@@ -53,9 +56,11 @@ export async function POST(request: Request) {
       throw new Error("Booking could not be saved.");
     }
 
+    console.log(JSON.stringify({ level: "info", msg: "booking saved", route: "/api/bookings", requestId, reference, ms: Date.now() - startedAt }));
     return NextResponse.json({ bookingId: id, reference, orderId: order.id, amount: depositPaise, currency: "INR", keyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Booking could not be created.";
+    console.error(JSON.stringify({ level: "error", msg: "booking failed", route: "/api/bookings", requestId, error: message, ms: Date.now() - startedAt }));
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
