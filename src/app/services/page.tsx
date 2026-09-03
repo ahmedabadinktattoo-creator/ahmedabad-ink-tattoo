@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
 import { EditorialPage } from "@/components/editorial-page";
-export const metadata: Metadata = { title: "Tattoo, Piercing & Removal Services in Ahmedabad", description: "Custom tattoos, body piercing, tattoo removal, realism, fine line, mandala, blackwork and cover-up consultations in Ahmedabad.", alternates: { canonical: "/services" } };
+import { buildMetadata } from "@/lib/seo";
+export const metadata = buildMetadata({ title: "Tattoo, Piercing & Removal Services in Ahmedabad", description: "Custom tattoos, body piercing, tattoo removal, realism, fine line, mandala, blackwork and cover-up consultations in Nikol, Ahmedabad.", path: "/services" });
 export default function ServicesPage() { return <EditorialPage eyebrow="Tattoo services · Ahmedabad" title={<>Your idea.<br /><em>Our discipline.</em></>} intro="We match each idea to the right artist, visual language and process. Final pricing follows consultation because every original tattoo has different detail, placement and time requirements." items={[
   { number: "01", title: "Custom tattoo design", text: "A one-of-one design developed around your idea, anatomy, placement and preferred visual direction." },
   { number: "02", title: "Realism & portrait", text: "High-detail black-and-grey or colour work planned for strong composition, readable contrast and longevity." },

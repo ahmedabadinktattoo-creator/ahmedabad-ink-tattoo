@@ -1,7 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-const posts={"first-tattoo-guide":{title:"Your first tattoo: a calm, practical guide",description:"How to prepare for your first tattoo and make confident decisions about artist, style, placement and care.",sections:[["Start with meaning, not a screenshot","Collect references for mood, subject and style, but stay open to an original composition that fits your body."],["Choose the artist by work","Look for consistently healed-looking technique in the style you want—not only follower count or a convenient appointment."],["Prepare your body","Sleep, hydrate, eat a proper meal and avoid alcohol. Wear comfortable clothing that makes the placement easy to reach."],["Plan for healing","Keep the following days simple. Follow your artist’s aftercare and ask the studio when anything feels uncertain."]] },"tattoo-aftercare-guide":{title:"Fresh tattoo aftercare, without the confusion",description:"A practical guide to cleaning, moisturising and protecting a fresh tattoo while it heals.",sections:[["Follow your artist first","The dressing and exact timing depend on your tattoo and the product used. Personal instructions take priority."],["Clean, then leave it alone","Wash gently with clean hands and mild cleanser, pat dry and avoid touching the area unnecessarily."],["Use less product than you think","A very thin layer of recommended moisturiser is enough. Heavy application can trap too much moisture."],["Protect the healing skin","Avoid soaking, swimming, direct sun, scratching and clothing that repeatedly rubs the area."]]}} as const;
-export function generateStaticParams(){return Object.keys(posts).map(slug=>({slug}));}
-export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const {slug}=await params;const post=posts[slug as keyof typeof posts];return post?{title:post.title,description:post.description,alternates:{canonical:`/blog/${slug}`}}:{};}
-export default async function Article({params}:{params:Promise<{slug:string}>}){const {slug}=await params;const post=posts[slug as keyof typeof posts];if(!post)notFound();return <article className="inner-page article-page"><header className="page-hero"><Link className="back-link" href="/blog">← Journal</Link><p className="eyebrow gold-text">Studio guide</p><h1>{post.title}</h1><p>{post.description}</p></header><div className="article-body section">{post.sections.map(([title,text],index)=><section key={title}><span>0{index+1}</span><div><h2>{title}</h2><p>{text}</p></div></section>)}<aside><h2>Have an idea in mind?</h2><Link href="/book" className="button gold">Book consultation</Link></aside></div></article>}
+import { journalPosts, type JournalSlug } from "@/data/journal";
+import { buildMetadata } from "@/lib/seo";
+
+export function generateStaticParams() { return Object.keys(journalPosts).map((slug) => ({ slug })); }
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const post = journalPosts[slug as JournalSlug];
+  return post ? buildMetadata({ title: post.title, description: post.description, path: `/blog/${slug}` }) : {};
+}
+
+export default async function Article({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = journalPosts[slug as JournalSlug];
+  if (!post) notFound();
+  return <article className="inner-page article-page"><header className="page-hero"><Link className="back-link" href="/blog">← Journal</Link><p className="eyebrow gold-text">{post.tag} guide</p><h1>{post.title}</h1><p>{post.description}</p></header><div className="article-body section">{post.sections.map(([title, text], index) => <section key={title}><span>{String(index + 1).padStart(2, "0")}</span><div><h2>{title}</h2><p>{text}</p></div></section>)}<aside><h2>Have an idea in mind?</h2><Link href="/book" className="button gold">Send an enquiry</Link></aside></div></article>;
+}

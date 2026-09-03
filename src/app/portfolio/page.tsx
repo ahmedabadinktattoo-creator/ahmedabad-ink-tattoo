@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { PortfolioGrid } from "@/components/portfolio-grid";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Tattoo Portfolio", description: "Explore custom tattoo work from Ahmedabad Ink across realism, fine line, mandala, portrait, geometric, minimal, blackwork and cover ups." };
+export const metadata = buildMetadata({ title: "Tattoo Portfolio in Ahmedabad", description: "Explore original tattoos created in Nikol, Ahmedabad across realism, fine line, mandala, portrait, geometric, minimal, blackwork and cover-ups.", path: "/portfolio" });
 
 export default function PortfolioPage() {
   return (

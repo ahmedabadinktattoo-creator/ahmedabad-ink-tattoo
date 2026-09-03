@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { SignOutButton } from "@/components/sign-out-button";
 import { getSupabaseAdmin, hasBookingBackend } from "@/lib/supabase-admin";
 import { createClient, hasPublicSupabase, requireAdmin, requireUser } from "@/lib/supabase/server";
-import { addBlogPost, addPortfolioEntry, updateBookingStatus } from "./actions";
+import { addBlogPost, addPortfolioEntry, updateBookingStatus, updateEnquiryStatus } from "./actions";
 
 export const metadata: Metadata = { title: "Studio Admin", robots: { index: false, follow: false } };
 
@@ -14,6 +14,12 @@ type AdminBooking = {
   tattoo_style: string; artist_slug: string; appointment_date: string; appointment_time: string;
   status: string; deposit_amount: number; placement: string; approximate_size: string; idea: string;
   reference_path: string | null; reference_url?: string | null;
+};
+
+type AdminEnquiry = {
+  id: string; reference: string; created_at: string; customer_name: string; email: string; phone: string;
+  tattoo_style: string; placement: string; approximate_size: string; idea: string; status: string;
+  notification_delivery: { customer?: boolean; studio?: boolean } | null;
 };
 
 const demoBookings: AdminBooking[] = [{
@@ -31,17 +37,20 @@ export default async function AdminDashboard() {
   if (configured && !admin) redirect("/dashboard");
 
   let bookings: AdminBooking[] = demoBookings;
+  let enquiries: AdminEnquiry[] = [];
   let portfolioCount = 9;
   let postCount = 3;
 
   if (configured) {
     const supabase = await createClient();
-    const [bookingsResult, portfolioResult, postsResult] = await Promise.all([
+    const [bookingsResult, enquiriesResult, portfolioResult, postsResult] = await Promise.all([
       supabase.from("consultation_bookings").select("id,reference,customer_name,email,phone,tattoo_style,artist_slug,appointment_date,appointment_time,status,deposit_amount,placement,approximate_size,idea,reference_path").order("appointment_date", { ascending: true }).limit(50),
+      supabase.from("consultation_enquiries").select("id,reference,created_at,customer_name,email,phone,tattoo_style,placement,approximate_size,idea,status,notification_delivery").order("created_at", { ascending: false }).limit(100),
       supabase.from("portfolio_entries").select("id", { count: "exact", head: true }),
       supabase.from("blog_posts").select("id", { count: "exact", head: true }),
     ]);
     bookings = (bookingsResult.data ?? []) as AdminBooking[];
+    enquiries = (enquiriesResult.data ?? []) as AdminEnquiry[];
     portfolioCount = portfolioResult.count ?? 0;
     postCount = postsResult.count ?? 0;
 
@@ -58,10 +67,21 @@ export default async function AdminDashboard() {
   const confirmed = bookings.filter((item) => item.status === "confirmed" || item.status === "completed");
   const revenue = confirmed.reduce((sum, item) => sum + item.deposit_amount, 0) / 100;
 
-  return <div className="admin-shell">
+  return <div className="admin-shell" data-clarity-mask="true">
     <header className="admin-top"><div><p className="eyebrow gold-text">Studio control room</p><h1>Booking command centre.</h1><p>Customer details, references and appointment status in one place.</p></div><div>{!configured && <span className="preview-pill">Preview data</span>}{configured && <SignOutButton />}</div></header>
-    <nav className="admin-nav"><a href="#overview">Overview</a><a href="#bookings">Bookings</a><a href="#content">Content studio</a><Link href="/">View website ↗</Link></nav>
-    <section className="metric-grid" id="overview"><article><span>Upcoming consultations</span><strong>{bookings.length}</strong><small>Latest 50</small></article><article><span>Deposits collected</span><strong>₹{revenue.toLocaleString("en-IN")}</strong><small>{confirmed.length} confirmed</small></article><article><span>Portfolio pieces</span><strong>{portfolioCount}</strong><small>Published work</small></article><article><span>Blog drafts</span><strong>{postCount}</strong><small>Content pipeline</small></article></section>
+    <nav className="admin-nav"><a href="#overview">Overview</a><a href="#enquiries">Enquiries</a><a href="#bookings">Bookings</a><a href="#content">Content studio</a><Link href="/">View website ↗</Link></nav>
+    <section className="metric-grid" id="overview"><article><span>New enquiries</span><strong>{enquiries.filter((item) => item.status === "new").length}</strong><small>{enquiries.length} total</small></article><article><span>Upcoming consultations</span><strong>{bookings.length}</strong><small>Latest 50</small></article><article><span>Deposits collected</span><strong>₹{revenue.toLocaleString("en-IN")}</strong><small>{confirmed.length} confirmed</small></article><article><span>Portfolio pieces</span><strong>{portfolioCount}</strong><small>Published work</small></article><article><span>Blog drafts</span><strong>{postCount}</strong><small>Content pipeline</small></article></section>
+    <section className="admin-panel" id="enquiries"><div className="admin-heading"><div><p className="eyebrow gold-text">Lead inbox</p><h2>Website enquiries</h2></div><p>Every completed enquiry form is stored here, even if an email notification has a delivery problem.</p></div>
+      <div className="admin-table"><div className="table-row table-head enquiry-expanded"><span>Client</span><span>Received</span><span>Tattoo request</span><span>Idea</span><span>Status</span></div>
+        {enquiries.length ? enquiries.map((enquiry) => <div className="table-row enquiry-expanded" key={enquiry.id}>
+          <span><strong>{enquiry.customer_name}</strong><small>{enquiry.reference}<br /><a href={`mailto:${enquiry.email}`}>{enquiry.email}</a><br /><a href={`https://wa.me/${enquiry.phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">{enquiry.phone} ↗</a></small></span>
+          <span>{new Date(enquiry.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}<small>{new Date(enquiry.created_at).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}<br />Email: {enquiry.notification_delivery?.customer && enquiry.notification_delivery?.studio ? "delivered" : "dashboard only"}</small></span>
+          <span>{enquiry.tattoo_style}<small>{enquiry.placement} · {enquiry.approximate_size}</small></span>
+          <span><small className="booking-detail">{enquiry.idea}</small></span>
+          <span><form action={updateEnquiryStatus}><input type="hidden" name="id" value={enquiry.id} /><select name="status" defaultValue={enquiry.status}><option value="new">New</option><option value="contacted">Contacted</option><option value="booked">Booked</option><option value="closed">Closed</option></select><button>Save</button></form></span>
+        </div>) : <div className="empty-state"><h3>No enquiries yet.</h3><p>New customer forms will appear here immediately.</p></div>}
+      </div>
+    </section>
     <section className="admin-panel" id="bookings"><div className="admin-heading"><div><p className="eyebrow gold-text">Booking desk</p><h2>Appointments</h2></div><Link className="line-link" href="/book">Create booking ↗</Link></div>
       <div className="admin-table"><div className="table-row table-head booking-expanded"><span>Client</span><span>Appointment</span><span>Artist / style</span><span>Deposit</span><span>Status</span><span>Idea & reference</span></div>
         {bookings.length ? bookings.map((booking) => <div className="table-row booking-expanded" key={booking.id}>

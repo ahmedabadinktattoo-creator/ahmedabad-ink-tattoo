@@ -1,12 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArtistCard } from "@/components/artist-card";
+import { studioLinks } from "@/data/links";
 import { artists, portfolio } from "@/data/studio";
 
 const principles = [
   ["01", "Made for one", "Every design begins from a blank page and a real conversation."],
   ["02", "Hygiene, without compromise", "Single-use needles, hospital-grade sterilisation and a calm, immaculate studio."],
   ["03", "Craft that lasts", "Experienced hands, considered placement and clear guidance from consultation to aftercare."],
+] as const;
+
+const googleReviews = [
+  ["Yash Patel", "The attention to detail and line work are incredible."],
+  ["Fenny Patel", "They understood what I wanted and gave their suggestions to make it even better."],
+  ["Hardik Rathod", "The studio is extremely clean, hygienic, and professional."],
 ] as const;
 
 export default function Home() {
@@ -22,7 +29,7 @@ export default function Home() {
           <p className="eyebrow">Premium tattoo studio · Ahmedabad</p>
           <h1>Wear your<br /><em>story.</em></h1>
           <p className="hero-lede">Original art. Experienced hands. A private, considered tattoo experience built around you.</p>
-          <div className="button-row"><Link className="button gold" href="/book">Book a consultation</Link><Link className="text-link" href="/portfolio">Explore our work <span>↗</span></Link></div>
+          <div className="button-row"><a className="button gold" href={studioLinks.whatsapp} target="_blank" rel="noreferrer">Book on WhatsApp</a><a className="text-link" href={studioLinks.phone}>Book on call <span>↗</span></a></div>
         </div>
         <p className="hero-side">Custom tattooing · Since 2014</p>
         <a className="scroll-cue" href="#studio">Scroll <span>↓</span></a>
@@ -84,11 +91,18 @@ export default function Home() {
         <div className="artist-grid">{artists.map((artist, index) => <ArtistCard artist={artist} priority={index === 0} key={artist.slug} />)}</div>
       </section>
 
-      <section className="testimonial section"><p className="eyebrow gold-text">A considered experience</p><p className="quote-mark">“</p><blockquote>Your tattoo should feel personal before the first line is drawn—and cared for long after the final one.</blockquote><p className="quote-by">— The Ahmedabad Ink standard</p><div className="review-links"><a className="line-link" href="https://www.google.com/maps/place/Ahemdabad+Ink+Tattoo+-+Tattoo+Shop,+Custom+Tattoo,+Tattoo+Artist,+Tattoo+Removal,+Tattoo+Studio+in+Nikol,+Ahmedabad/@23.0464305,72.6668693,1289m/data=!3m2!1e3!5s0x395e8471b91c3959:0x9c12d4a3ede9b5ff!4m8!3m7!1s0x395e871ebbaaaa9b:0xeadbd2a2fa415ffe!8m2!3d23.0464305!4d72.6668693!9m1!1b1!16s%2Fg%2F11cjkq27t2?entry=ttu" target="_blank" rel="noreferrer">Read genuine Google reviews <span>↗</span></a><Link className="line-link" href="/about">Our approach <span>↗</span></Link></div></section>
+      <section className="google-trust section">
+        <div className="google-trust-mark" aria-hidden="true">G</div>
+        <div><p className="eyebrow gold-text">Google client reviews</p><h2>Real visits.<br /><em>Real experiences.</em></h2><p>Recent five-star words from clients who visited Ahmedabad Ink. Read every published review on our official Google Business Profile.</p></div>
+        <div className="google-trust-actions"><a className="button gold" href={studioLinks.googleReviews} target="_blank" rel="noreferrer">Read all Google reviews</a><a className="line-link" href={studioLinks.maps} target="_blank" rel="noreferrer">Find us in Nikol <span>↗</span></a></div>
+        <div className="review-topic-grid">
+          {googleReviews.map(([name, quote]) => <a href={studioLinks.googleReviews} target="_blank" rel="noreferrer" key={name}><span>5-STAR GOOGLE REVIEW · {name}</span><strong>“{quote}”</strong><small>Read on Google ↗</small></a>)}
+        </div>
+      </section>
 
       <section className="booking" id="book">
         <Image src="/studio/tattoo-room.webp" alt="Ahmedabad Ink Tattoo private tattoo room" fill sizes="100vw" />
-        <div className="booking-overlay" /><div className="booking-inner"><p className="eyebrow">Your idea starts here</p><h2>Let’s make something<br /><em>worth keeping.</em></h2><p>Tell us what you have in mind. We’ll help with the artist, style, placement and next steps.</p><Link className="button gold" href="/book">Start your consultation</Link></div>
+        <div className="booking-overlay" /><div className="booking-inner"><p className="eyebrow">Your idea starts here</p><h2>Let’s make something<br /><em>worth keeping.</em></h2><p>Tell us what you have in mind. We’ll help with the artist, style, placement and next steps.</p><div className="direct-booking-actions centered"><a className="button gold" href={studioLinks.phone}>Book on call</a><a className="button whatsapp-button" href={studioLinks.whatsapp} target="_blank" rel="noreferrer">Book on WhatsApp</a></div></div>
       </section>
     </>
   );

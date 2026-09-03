@@ -23,7 +23,7 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <div className="nav-shell">
-        <Link className="brand" href="/" aria-label="Ahmedabad Ink home" onClick={() => setOpen(false)}>
+        <Link className="brand" href="/" onClick={() => setOpen(false)}>
           <span className="brand-mark"><Image src="/logo.png" alt="" width={40} height={40} priority /></span>
           <span>Ahmedabad Ink<small>Tattoo Studio · Since 2014</small></span>
         </Link>

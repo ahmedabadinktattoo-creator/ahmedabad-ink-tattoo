@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { ArtistCard } from "@/components/artist-card";
 import { artists } from "@/data/studio";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Tattoo Artists", description: "Meet the tattoo artists at Ahmedabad Ink and find the right specialist for your tattoo style." };
+export const metadata = buildMetadata({ title: "Tattoo Artists in Ahmedabad", description: "Meet Kartik, Sachin and Manish at Ahmedabad Ink Tattoo in Nikol and find the right artist for realism, portrait, mandala, blackwork, fine line or minimal tattoos.", path: "/artists" });
 
 export default function ArtistsPage() {
   return (

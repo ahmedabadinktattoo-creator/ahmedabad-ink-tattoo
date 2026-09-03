@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { bookingReference, depositPaise, parseBookingForm, validateReference } from "@/lib/bookings";
 import { getSupabaseAdmin, hasBookingBackend } from "@/lib/supabase-admin";
 import { createClient as createUserClient, hasPublicSupabase } from "@/lib/supabase/server";
+import { bodyIsWithinLimit, checkWebsiteRateLimit, hasTrustedOrigin } from "@/lib/request-security";
 
 export const runtime = "nodejs";
 
@@ -11,6 +12,9 @@ export async function POST(request: Request) {
   const requestId = request.headers.get("x-vercel-id") ?? randomUUID();
   console.log(JSON.stringify({ level: "info", msg: "booking request started", route: "/api/bookings", requestId }));
   try {
+    if (!hasTrustedOrigin(request)) return NextResponse.json({ error: "Invalid request origin." }, { status: 403 });
+    if (!bodyIsWithinLimit(request, 9_000_000)) return NextResponse.json({ error: "Reference image is too large." }, { status: 413 });
+    if (!await checkWebsiteRateLimit(request, "bookings", 5, 600)) return NextResponse.json({ error: "Too many booking attempts. Please wait a few minutes and try again." }, { status: 429, headers: { "Retry-After": "600" } });
     const formData = await request.formData();
     const input = parseBookingForm(formData);
     const fileValue = formData.get("reference");

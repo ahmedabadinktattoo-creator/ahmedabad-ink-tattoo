@@ -1,0 +1,13 @@
+export const studioLinks = {
+  phoneDisplay: "+91 88668 48681",
+  phone: "tel:+918866848681",
+  whatsapp: "https://wa.me/918866848681?text=Hi%20Ahmedabad%20Ink%20Tattoo%2C%20I%20would%20like%20to%20book%20a%20consultation.",
+  maps: "https://maps.app.goo.gl/9d6jgxtCMyuzmjDEA",
+  googleReviews: "https://www.google.com/maps/place/Ahemdabad+Ink+Tattoo+-+Tattoo+Shop,+Custom+Tattoo,+Tattoo+Artist,+Tattoo+Removal,+Tattoo+Studio+in+Nikol,+Ahmedabad/@23.0464305,72.6668693,1289m/data=!3m2!1e3!5s0x395e8471b91c3959:0x9c12d4a3ede9b5ff!4m8!3m7!1s0x395e871ebbaaaa9b:0xeadbd2a2fa415ffe!8m2!3d23.0464305!4d72.6668693!9m1!1b1!16s%2Fg%2F11cjkq27t2?entry=ttu",
+  instagram: "https://www.instagram.com/ahmedabadinktattoo/",
+  pinterest: "https://in.pinterest.com/ahmedabadinktattoo/",
+  facebook: "https://www.facebook.com/ahmedabadinktattoo",
+  x: "https://x.com/AhmedabadTattoo",
+  youtube: "https://www.youtube.com/@ahmedabadinktattoo5363",
+  tumblr: "https://www.tumblr.com/blog/ahmedabadinktattoo",
+} as const;

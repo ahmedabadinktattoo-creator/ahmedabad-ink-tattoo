@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { sendGAEvent } from "@next/third-parties/google";
 import { artists, portfolioCategories } from "@/data/studio";
 import { bookingTimes } from "@/lib/bookings";
+import { trackAnalytics, trackClarity, trackMeta } from "@/lib/tracking";
 
 type RazorpayResponse = { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string };
 type RazorpayOptions = { key: string; amount: number; currency: string; name: string; description: string; order_id: string; prefill: { name: string; email: string; contact: string }; theme: { color: string }; handler: (response: RazorpayResponse) => void; modal: { ondismiss: () => void } };
@@ -52,7 +52,7 @@ export function BookingWizard({ initialArtist = "" }: { initialArtist?: string }
     const invalidControl = activeFieldset?.querySelector<HTMLInputElement | HTMLTextAreaElement>("input:invalid, textarea:invalid");
     if (invalidControl) { invalidControl.reportValidity(); return; }
     const nextStep = Math.min(step + 1, 5);
-    sendGAEvent("event", "booking_step_completed", { step: step + 1, step_name: stepLabels[step] });
+    trackAnalytics("booking_step_completed", { step: step + 1, step_name: stepLabels[step] });
     setStep(nextStep);
   }
 
@@ -60,24 +60,28 @@ export function BookingWizard({ initialArtist = "" }: { initialArtist?: string }
     if (referencePreview) URL.revokeObjectURL(referencePreview);
     if (!file) { setReferencePreview(""); setReferenceName(""); return; }
     setReferencePreview(URL.createObjectURL(file)); setReferenceName(file.name);
-    sendGAEvent("event", "booking_reference_selected", { file_type: file.type, file_size_kb: Math.round(file.size / 1024) });
+    trackAnalytics("booking_reference_selected", { file_type: file.type, file_size_kb: Math.round(file.size / 1024) });
   }
 
   async function submit(form: HTMLFormElement) {
     setSubmitting(true); setError("");
-    sendGAEvent("event", "booking_checkout_started", { artist, tattoo_style: style });
+    trackAnalytics("booking_checkout_started", { artist, tattoo_style: style });
+    trackMeta("InitiateCheckout");
+    trackClarity("booking_checkout_started");
     try {
       const formData = new FormData(form); formData.set("artistSlug", artist); formData.set("style", style); formData.set("appointmentDate", date); formData.set("appointmentTime", time);
       const response = await fetch("/api/bookings", { method: "POST", body: formData });
       const result = await response.json() as { error?: string; demo?: boolean; bookingId?: string; reference?: string; amount?: number; currency?: string; orderId?: string; keyId?: string };
       if (!response.ok || result.error) throw new Error(result.error ?? "Your booking could not be created.");
-      if (result.demo && result.reference) { setConfirmation({ reference: result.reference, demo: true }); sendGAEvent("event", "booking_demo_completed"); return; }
+      if (result.demo && result.reference) { setConfirmation({ reference: result.reference, demo: true }); trackAnalytics("booking_demo_completed"); return; }
       const loaded = await loadRazorpay(); if (!loaded || !window.Razorpay || !result.orderId || !result.keyId || !result.bookingId) throw new Error("Secure checkout could not be loaded.");
       const checkout = new window.Razorpay({ key: result.keyId, amount: result.amount ?? 0, currency: result.currency ?? "INR", name: "Ahmedabad Ink Tattoo", description: "Consultation deposit", order_id: result.orderId, prefill: { name: String(formData.get("name")), email: String(formData.get("email")), contact: String(formData.get("phone")) }, theme: { color: "#c7a461" }, modal: { ondismiss: () => setSubmitting(false) }, handler: async (payment) => {
         const verification = await fetch("/api/payments/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ bookingId: result.bookingId, ...payment }) });
         const verified = await verification.json() as { error?: string; reference?: string }; if (!verification.ok) { setError(verified.error ?? "Payment verification failed."); setSubmitting(false); return; }
         setConfirmation({ reference: verified.reference ?? result.reference ?? "", demo: false });
-        sendGAEvent("event", "booking_confirmed", { value: (result.amount ?? 0) / 100, currency: result.currency ?? "INR" });
+        trackAnalytics("purchase", { transaction_id: result.bookingId ?? "confirmed-booking", value: (result.amount ?? 0) / 100, currency: result.currency ?? "INR" });
+        trackMeta("Purchase", { value: (result.amount ?? 0) / 100, currency: result.currency ?? "INR" });
+        trackClarity("booking_confirmed");
       } }); checkout.open();
     } catch (caught) { setError(caught instanceof Error ? caught.message : "Something went wrong."); setSubmitting(false); }
   }
@@ -85,7 +89,7 @@ export function BookingWizard({ initialArtist = "" }: { initialArtist?: string }
   if (confirmation) return <div className="booking-confirmed"><span className="confirmation-mark">✓</span><p className="eyebrow gold-text">{confirmation.demo ? "Preview complete" : "Consultation confirmed"}</p><h2>Your story starts here.</h2><p>Your booking reference is <strong>{confirmation.reference}</strong>.</p><p>{confirmation.demo ? "This is demo mode. Add the production credentials in .env.local to save bookings, collect deposits and send confirmations." : "We’ve sent your appointment details by email and will be in touch if we need anything else."}</p><a className="button gold" href="/portfolio">Explore the portfolio</a></div>;
 
   return (
-    <form className="booking-wizard" onSubmit={(event) => { event.preventDefault(); void submit(event.currentTarget); }}>
+    <form className="booking-wizard" data-clarity-mask="true" onSubmit={(event) => { event.preventDefault(); void submit(event.currentTarget); }}>
       <div className="wizard-progress"><div className="progress-track"><span style={{ width: progress }} /></div><p>Step {step + 1} of {stepLabels.length} · {stepLabels[step]}</p></div>
       <div className="wizard-stage">
         <fieldset hidden={step !== 0}><legend>Who would you like to work with?</legend><p className="field-intro">Choose an artist, or select “Studio recommendation” and we’ll match your idea.</p><div className="choice-grid artist-choices"><button type="button" className={artist === "studio" ? "chosen" : ""} onClick={() => setArtist("studio")}>Studio recommendation<span>We’ll find your best fit</span></button>{artists.map((item) => <button type="button" className={artist === item.slug ? "chosen" : ""} onClick={() => setArtist(item.slug)} key={item.slug}>{item.name}<span>{item.specialties.slice(0, 2).join(" · ")}</span></button>)}</div></fieldset>

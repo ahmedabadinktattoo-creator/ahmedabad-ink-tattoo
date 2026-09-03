@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { artists, getArtist, portfolio } from "@/data/studio";
+import { buildMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -11,7 +12,11 @@ export function generateStaticParams() { return artists.map(({ slug }) => ({ slu
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const artist = getArtist((await params).slug);
   if (!artist) return { title: "Artist not found" };
-  return { title: `${artist.name} — ${artist.role}`, description: artist.bio };
+  return buildMetadata({
+    title: `${artist.name} — Tattoo Artist in Ahmedabad`,
+    description: `${artist.bio} View specialties and book a consultation with ${artist.name} at Ahmedabad Ink Tattoo in Nikol.`,
+    path: `/artists/${artist.slug}`,
+  });
 }
 
 export default async function ArtistPage({ params }: Props) {

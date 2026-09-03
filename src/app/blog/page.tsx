@@ -1,5 +1,9 @@
-import type { Metadata } from "next";
 import Link from "next/link";
-export const metadata: Metadata = { title: "Tattoo Journal", description: "Practical tattoo advice, preparation, aftercare and studio stories from Ahmedabad Ink Tattoo.", alternates: { canonical: "/blog" } };
-const posts=[{slug:"first-tattoo-guide",title:"Your first tattoo: a calm, practical guide",tag:"Preparation",copy:"How to choose a direction, prepare for the session and make decisions you will still respect years from now."},{slug:"tattoo-aftercare-guide",title:"Fresh tattoo aftercare, without the confusion",tag:"Aftercare",copy:"The essentials of washing, moisturising and protecting new work while the skin heals."}];
-export default function BlogPage(){return <div className="inner-page"><header className="page-hero"><p className="eyebrow gold-text">Journal · Useful by design</p><h1>Know more.<br/><em>Choose better.</em></h1><p>Clear guidance from consultation to healed tattoo—written to help you make confident decisions.</p></header><section className="journal-grid section">{posts.map((post,index)=><Link href={`/blog/${post.slug}`} key={post.slug}><span>0{index+1} / {post.tag}</span><h2>{post.title}</h2><p>{post.copy}</p><b>Read article ↗</b></Link>)}</section></div>}
+import { journalPosts } from "@/data/journal";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata = buildMetadata({ title: "Tattoo Guides & Journal", description: "Practical tattoo preparation, aftercare, placement, cover-up and style guidance from Ahmedabad Ink Tattoo in Nikol.", path: "/blog" });
+
+export default function BlogPage() {
+  return <div className="inner-page"><header className="page-hero"><p className="eyebrow gold-text">Journal · Useful by design</p><h1>Know more.<br/><em>Choose better.</em></h1><p>Clear guidance from consultation to healed tattoo—written to help you make confident decisions.</p></header><section className="journal-grid section">{Object.entries(journalPosts).map(([slug, post], index) => <Link href={`/blog/${slug}`} key={slug}><span>{String(index + 1).padStart(2, "0")} / {post.tag}</span><h2>{post.title}</h2><p>{post.copy}</p><b>Read article ↗</b></Link>)}</section></div>;
+}
