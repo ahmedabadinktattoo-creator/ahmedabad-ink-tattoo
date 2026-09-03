@@ -19,7 +19,11 @@ export function ConsentManager({ googleAnalyticsId, metaPixelId, clarityProjectI
 
   useEffect(() => {
     const saved = window.localStorage.getItem(storageKey);
-    if (saved === "all" || saved === "analytics" || saved === "essential") setChoice(saved);
+    const initialChoice = saved === "all" || saved === "analytics" || saved === "essential"
+      ? saved
+      : "essential";
+    if (!saved) window.localStorage.setItem(storageKey, initialChoice);
+    setChoice(initialChoice);
     setReady(true);
   }, []);
 
@@ -67,10 +71,10 @@ export function ConsentManager({ googleAnalyticsId, metaPixelId, clarityProjectI
     </>}
     {marketingAllowed && <Script id="ait-meta-pixel" strategy="afterInteractive">{`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${metaPixelId}');fbq('track','PageView');`}</Script>}
     {analyticsAllowed && clarityProjectId && <Script id="ait-microsoft-clarity" strategy="lazyOnload">{`(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/'+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,'clarity','script','${clarityProjectId}');clarity('consentv2',{ad_Storage:'${marketingAllowed ? "granted" : "denied"}',analytics_Storage:'granted'});`}</Script>}
-    {ready && (choice === null || editing) && <aside className="consent-banner" aria-label="Privacy choices">
+    {ready && editing && <aside className="consent-banner" aria-label="Privacy choices">
       <div><p className="eyebrow gold-text">Your privacy</p><h2>You choose what we measure.</h2><p>Essential storage keeps the website working. Optional analytics helps us improve the experience, and marketing measurement tells us which ads lead to genuine enquiries. We never send your form answers or contact details to advertising platforms. <Link href="/privacy">Privacy policy</Link></p></div>
       <div className="consent-actions"><button className="button gold" type="button" onClick={() => save("all")}>Accept all</button><button className="button outline" type="button" onClick={() => save("analytics")}>Analytics only</button><button className="consent-essential" type="button" onClick={() => save("essential")}>Essential only</button></div>
     </aside>}
-    {ready && choice !== null && !editing && <button className="privacy-settings" type="button" onClick={() => setEditing(true)}>Privacy settings</button>}
+    {ready && !editing && <button className="privacy-settings" type="button" onClick={() => setEditing(true)}>Privacy settings</button>}
   </>;
 }
