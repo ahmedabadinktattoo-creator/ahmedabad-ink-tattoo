@@ -55,13 +55,17 @@ export function ConsentManager({ googleAnalyticsId, metaPixelId, clarityProjectI
   }, []);
 
   function save(next: ConsentChoice) {
-    window.localStorage.setItem(storageKey, next);
-    if (editing && choice !== next) {
-      window.location.reload();
-      return;
-    }
     setChoice(next);
     setEditing(false);
+    try {
+      window.localStorage.setItem(storageKey, next);
+    } catch {
+      // The choice still applies for this visit when storage is unavailable.
+    }
+
+    const removesLoadedTracking = choice === "all" && next !== "all"
+      || choice === "analytics" && next === "essential";
+    if (removesLoadedTracking) window.setTimeout(() => window.location.reload(), 100);
   }
 
   return <>
