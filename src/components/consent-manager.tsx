@@ -28,6 +28,12 @@ export function ConsentManager({ googleAnalyticsId, metaPixelId, clarityProjectI
   }, []);
 
   useEffect(() => {
+    const openSettings = () => setEditing(true);
+    window.addEventListener("ait:open-privacy-settings", openSettings);
+    return () => window.removeEventListener("ait:open-privacy-settings", openSettings);
+  }, []);
+
+  useEffect(() => {
     if (analyticsAllowed) trackAnalytics("page_view", { page_path: pathname });
     if (marketingAllowed) trackMeta("PageView");
   }, [analyticsAllowed, marketingAllowed, pathname]);
@@ -77,8 +83,7 @@ export function ConsentManager({ googleAnalyticsId, metaPixelId, clarityProjectI
     {analyticsAllowed && clarityProjectId && <Script id="ait-microsoft-clarity" strategy="lazyOnload">{`(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/'+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,'clarity','script','${clarityProjectId}');clarity('consentv2',{ad_Storage:'${marketingAllowed ? "granted" : "denied"}',analytics_Storage:'granted'});`}</Script>}
     {ready && editing && <aside className="consent-banner" aria-label="Privacy choices">
       <div><p className="eyebrow gold-text">Your privacy</p><h2>You choose what we measure.</h2><p>Essential storage keeps the website working. Optional analytics helps us improve the experience, and marketing measurement tells us which ads lead to genuine enquiries. We never send your form answers or contact details to advertising platforms. <Link href="/privacy">Privacy policy</Link></p></div>
-      <div className="consent-actions"><button className="button gold" type="button" onClick={() => save("all")}>Accept all</button><button className="button outline" type="button" onClick={() => save("analytics")}>Analytics only</button><button className="consent-essential" type="button" onClick={() => save("essential")}>Essential only</button></div>
+      <div className="consent-actions"><button className="button gold" type="button" onClick={() => save("all")}>Accept</button><button className="button outline" type="button" onClick={() => save("essential")}>Reject optional</button></div>
     </aside>}
-    {ready && !editing && <button className="privacy-settings" type="button" onClick={() => setEditing(true)}>Privacy settings</button>}
   </>;
 }

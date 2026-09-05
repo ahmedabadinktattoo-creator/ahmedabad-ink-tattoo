@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { PrivacySettingsButton } from "@/components/privacy-settings-button";
 import { studioLinks } from "@/data/links";
 
 export function SiteFooter() {
@@ -38,7 +39,7 @@ export function SiteFooter() {
           <a href="mailto:hello@ahmedabadinktattoo.com">Email us ↗</a>
         </div>
       </div>
-      <div className="footer-bottom"><span>© {new Date().getFullYear()} Ahmedabad Ink Tattoo</span><span><Link href="/privacy">Privacy</Link> · <Link href="/terms">Terms</Link> · Art with intention since 2014</span></div>
+      <div className="footer-bottom"><span>© {new Date().getFullYear()} Ahmedabad Ink Tattoo</span><span><Link href="/privacy">Privacy</Link> · <PrivacySettingsButton /> · <Link href="/terms">Terms</Link> · Art with intention since 2014</span></div>
     </footer>
   );
 }

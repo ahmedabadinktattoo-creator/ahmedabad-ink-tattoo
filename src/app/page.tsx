@@ -36,7 +36,6 @@ export default function Home() {
       </section>
 
       <section className="intro section" id="studio">
-        <div className="section-index">01 / Studio</div>
         <div className="intro-copy">
           <p className="eyebrow gold-text">A decade in ink</p>
           <h2>Not just a tattoo.<br /><em>A part of you.</em></h2>
@@ -67,14 +66,12 @@ export default function Home() {
       </section>
 
       <section className="principles section" id="process">
-        <div className="section-index">02 / The difference</div>
         <div className="principles-main"><p className="eyebrow gold-text">Why Ahmedabad Ink</p><h2>Nothing careless.<br /><em>Nothing copied.</em></h2>
           <div className="principle-list">{principles.map(([number, title, text]) => <article key={number}><span>{number}</span><div><h3>{title}</h3><p>{text}</p></div></article>)}</div>
         </div>
       </section>
 
       <section className="services-preview section-dark">
-        <div className="section-index">03 / Expertise</div>
         <div className="services-preview-copy">
           <p className="eyebrow gold-text">Created around you</p>
           <h2>From first idea<br /><em>to healed art.</em></h2>
