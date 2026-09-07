@@ -1,9 +1,10 @@
 "use client";
 
 import { FormEvent, useRef, useState } from "react";
+import { captureMarketingAttribution, grantMarketingConsent, hasMarketingConsent } from "@/lib/attribution";
 import { trackEnquiryLead } from "@/lib/tracking";
 
-const initialState = { name: "", email: "", phone: "", style: "", placement: "", size: "", idea: "", website: "" };
+const initialState = { name: "", email: "", phone: "", style: "", placement: "", size: "", idea: "", website: "", marketingConsent: false };
 
 export function EnquiryForm() {
   const [values, setValues] = useState(initialState);
@@ -14,13 +15,17 @@ export function EnquiryForm() {
     event.preventDefault();
     setStatus("sending");
     try {
-      const response = await fetch("/api/enquiries", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...values, startedAt: startedAt.current }) });
-      const result = await response.json();
+      const eventId = crypto.randomUUID();
+      const marketingConsent = values.marketingConsent || hasMarketingConsent();
+      if (values.marketingConsent) grantMarketingConsent();
+      const attribution = captureMarketingAttribution(marketingConsent);
+      const response = await fetch("/api/enquiries", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...values, marketingConsent, attribution, eventId, startedAt: startedAt.current }) });
+      const result = await response.json() as { error?: string; notified?: boolean; reference?: string; eventId?: string };
       if (!response.ok) throw new Error(result.error ?? "Enquiry could not be sent.");
       setValues(initialState);
       startedAt.current = Date.now();
       setStatus(result.notified ? "sent" : "saved");
-      trackEnquiryLead();
+      if (result.reference) trackEnquiryLead(result.reference, result.eventId ?? eventId);
     } catch {
       setStatus("error");
     }
@@ -37,6 +42,7 @@ export function EnquiryForm() {
       <label>Approximate size<input required maxLength={80} placeholder="e.g. 10 cm or palm-sized" value={values.size} onChange={(event) => setValues({ ...values, size: event.target.value })} /></label>
       <label className="wide">Tell us what you have in mind<textarea required minLength={10} maxLength={1500} rows={5} placeholder="Share the meaning, mood, elements or result you want. It is completely fine if you are not sure yet—we will help you shape the idea." value={values.idea} onChange={(event) => setValues({ ...values, idea: event.target.value })} /></label>
     </div>
+    <label className="consent"><input type="checkbox" checked={values.marketingConsent} onChange={(event) => setValues({ ...values, marketingConsent: event.target.checked })} /> <span>Optional: allow advertising measurement so we can understand which campaign led to this enquiry. We never send your tattoo idea, medical information or screening answers to advertising platforms.</span></label>
     <div className="enquiry-form-footer"><p>Private enquiry · Reviewed personally by our studio team. We use your details only to respond about your request.</p><button className="button gold" disabled={status === "sending"}>{status === "sending" ? "Sending…" : "Send my idea"}</button></div>
     {status === "sent" && <p className="form-success" role="status">Thank you—your idea is with our studio team. We’ll reply personally by email or WhatsApp soon.</p>}
     {status === "saved" && <p className="form-success" role="status">Thank you—your details are safely saved in our studio dashboard. We’ll reply by email or WhatsApp soon.</p>}

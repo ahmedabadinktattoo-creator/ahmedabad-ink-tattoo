@@ -24,7 +24,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#0a0a09" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const googleAnalyticsId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
+  const googleAnalyticsId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID ?? "G-6G8K7KQH0J";
+  const googleTagManagerId = process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID ?? "GTM-WKQTS5QF";
+  const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "1341779253037735";
   const clarityProjectId = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID ?? "ycdcb0ticm";
   const studioSchema = {
     "@context": "https://schema.org",
@@ -70,7 +72,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   };
   return (
     <html lang="en" className={`${inter.variable} ${display.variable}`}>
-      <body><SiteHeader /><main>{children}</main><SiteFooter /><ContactDock /><ConsentManager googleAnalyticsId={googleAnalyticsId} metaPixelId="1341779253037735" clarityProjectId={clarityProjectId} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(studioSchema) }} /></body>
+      <body><SiteHeader /><main>{children}</main><SiteFooter /><ContactDock /><ConsentManager googleAnalyticsId={googleAnalyticsId} googleTagManagerId={googleTagManagerId} metaPixelId={metaPixelId} clarityProjectId={clarityProjectId} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(studioSchema) }} /></body>
     </html>
   );
 }

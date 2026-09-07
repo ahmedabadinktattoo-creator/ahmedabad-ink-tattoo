@@ -18,6 +18,9 @@ A premium, responsive website for Ahmedabad Ink Tattoo, built with Next.js 15, R
 - CMS foundations for portfolio, artist profiles and blog posts
 - Responsive `next/image` delivery, route metadata, sitemap and robots directives
 - Accessible controls, semantic markup and reduced-motion support
+- Consent-controlled GA4, Google Tag Manager and Meta Pixel measurement
+- Campaign attribution capture for UTM, GCLID/GBRAID/WBRAID and FBCLID
+- Optional secure Google Sheet CRM sync and Meta Conversions API delivery
 
 ## Run locally
 
@@ -35,6 +38,15 @@ Without credentials, the booking flow runs in clearly labelled preview mode. To 
 3. Configure Razorpay to send `payment.captured` events to `/api/payments/webhook`.
 4. Add the same `RAZORPAY_WEBHOOK_SECRET` to the site environment.
 5. Configure the approved `booking_confirmation` WhatsApp template if WhatsApp notifications are required.
+
+## Activate marketing CRM and conversion tracking
+
+1. Apply the latest Supabase migration so website enquiries can store marketing attribution and consent.
+2. Deploy the Google Apps Script in `google-apps-script/marketing-crm-webhook.gs` using the accompanying README.
+3. Add `MARKETING_CRM_WEBHOOK_URL` and `MARKETING_CRM_WEBHOOK_SECRET` to Vercel.
+4. Generate a Meta Conversions API token in Events Manager and add it as `META_CAPI_ACCESS_TOKEN` in Vercel. Never use a `NEXT_PUBLIC_` prefix for this token.
+5. Use `META_TEST_EVENT_CODE` only during Meta Test Events validation, then remove it.
+6. Verify one consented enquiry in GA4 DebugView, Meta Test Events, Supabase and the Marketing CRM before starting paid campaigns.
 
 ## Activate Sprint 4 dashboards
 

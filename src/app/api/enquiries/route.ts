@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import type { MarketingAttribution } from "@/lib/attribution";
+import { runMarketingLeadIntegrations } from "@/lib/marketing-integrations";
 import { getSupabaseAdmin, hasBookingBackend } from "@/lib/supabase-admin";
 import { bodyIsWithinLimit, checkWebsiteRateLimit, hasTrustedOrigin } from "@/lib/request-security";
 
@@ -6,6 +8,29 @@ export const runtime = "nodejs";
 
 const sanitize = (value: unknown, max: number) => typeof value === "string" ? value.trim().slice(0, max) : "";
 const escapeHtml = (value: string) => value.replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character] ?? character);
+const cookieValue = (request: Request, name: string) => request.headers.get("cookie")?.split(";").map((part) => part.trim()).find((part) => part.startsWith(`${name}=`))?.slice(name.length + 1) ?? "";
+
+function readAttribution(value: unknown, marketingConsent: boolean): MarketingAttribution {
+  const input = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  const source = sanitize(input.source, 100).toLowerCase() || "direct";
+  const medium = sanitize(input.medium, 100).toLowerCase() || "direct";
+  return {
+    source,
+    medium,
+    campaign: sanitize(input.campaign, 150).toLowerCase(),
+    utmSource: sanitize(input.utmSource, 100).toLowerCase(),
+    utmMedium: sanitize(input.utmMedium, 100).toLowerCase(),
+    utmCampaign: sanitize(input.utmCampaign, 150).toLowerCase(),
+    utmContent: sanitize(input.utmContent, 150),
+    utmTerm: sanitize(input.utmTerm, 150),
+    landingPage: sanitize(input.landingPage, 500),
+    referrer: sanitize(input.referrer, 500),
+    gclid: marketingConsent ? sanitize(input.gclid, 250) : "",
+    gbraid: marketingConsent ? sanitize(input.gbraid, 250) : "",
+    wbraid: marketingConsent ? sanitize(input.wbraid, 250) : "",
+    fbclid: marketingConsent ? sanitize(input.fbclid, 250) : "",
+  };
+}
 
 export async function POST(request: Request) {
   try {
@@ -26,6 +51,11 @@ export async function POST(request: Request) {
     if (!name || !/^\S+@\S+\.\S+$/.test(email) || !phone || !style || !placement || !size || idea.length < 10) return NextResponse.json({ error: "Please complete every field." }, { status: 400 });
 
     const reference = `AIT-E-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+    const submittedEventId = sanitize(data.eventId, 80);
+    const eventId = /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(submittedEventId) ? submittedEventId : crypto.randomUUID();
+    const marketingConsent = data.marketingConsent === true;
+    const attribution = readAttribution(data.attribution, marketingConsent);
+    const createdAt = new Date().toISOString();
     const backendReady = hasBookingBackend();
     const key = process.env.RESEND_API_KEY;
     const from = process.env.BOOKING_FROM_EMAIL ?? "Ahmedabad Ink Tattoo <bookings@ahmedabadinktattoo.com>";
@@ -43,6 +73,21 @@ export async function POST(request: Request) {
         placement,
         approximate_size: size,
         idea,
+        source: attribution.source,
+        medium: attribution.medium,
+        campaign: attribution.campaign || null,
+        utm_source: attribution.utmSource || null,
+        utm_medium: attribution.utmMedium || null,
+        utm_campaign: attribution.utmCampaign || null,
+        utm_content: attribution.utmContent || null,
+        utm_term: attribution.utmTerm || null,
+        landing_page: attribution.landingPage || null,
+        referrer: attribution.referrer || null,
+        gclid: attribution.gclid || null,
+        gbraid: attribution.gbraid || null,
+        wbraid: attribution.wbraid || null,
+        fbclid: attribution.fbclid || null,
+        marketing_consent: marketingConsent,
       });
       if (error) {
         console.error("enquiry.database_insert_failed", { code: error.code, message: error.message });
@@ -51,6 +96,25 @@ export async function POST(request: Request) {
       }
     }
 
+    const marketingIntegration = saved ? runMarketingLeadIntegrations({
+      eventId,
+      reference,
+      createdAt,
+      name,
+      email,
+      phone,
+      style,
+      placement,
+      size,
+      marketingConsent,
+      attribution,
+      eventSourceUrl: attribution.landingPage || new URL("/book", request.url).toString(),
+      userAgent: sanitize(request.headers.get("user-agent"), 500),
+      clientIp: sanitize(request.headers.get("x-forwarded-for")?.split(",")[0], 64),
+      fbp: marketingConsent ? sanitize(cookieValue(request, "_fbp"), 250) : "",
+      fbc: marketingConsent ? sanitize(cookieValue(request, "_fbc"), 250) : "",
+    }) : Promise.resolve({ crm: "not_saved", meta: "not_saved" });
+
     if (!emailReady) {
       console.warn("enquiry.email_configuration_missing", {
         resend: Boolean(key),
@@ -58,7 +122,10 @@ export async function POST(request: Request) {
         recipient: Boolean(studioEmail),
         saved,
       });
-      if (saved) return NextResponse.json({ ok: true, saved: true, notified: false, reference });
+      if (saved) {
+        await marketingIntegration;
+        return NextResponse.json({ ok: true, saved: true, notified: false, reference, eventId });
+      }
       return NextResponse.json({ error: "Enquiry service is temporarily unavailable." }, { status: 503 });
     }
 
@@ -83,8 +150,10 @@ export async function POST(request: Request) {
       if (error) console.error("enquiry.notification_tracking_failed", { code: error.code, message: error.message });
     }
 
+    await marketingIntegration;
+
     if (!saved && !notified) return NextResponse.json({ error: "Enquiry could not be saved or sent." }, { status: 500 });
-    return NextResponse.json({ ok: true, saved, notified, reference });
+    return NextResponse.json({ ok: true, saved, notified, reference, eventId });
   } catch (error) {
     console.error("enquiry.unexpected_failure", error instanceof Error ? { message: error.message, stack: error.stack } : error);
     return NextResponse.json({ error: "Enquiry could not be sent." }, { status: 500 });
