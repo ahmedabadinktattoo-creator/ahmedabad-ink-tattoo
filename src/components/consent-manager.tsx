@@ -20,11 +20,9 @@ export function ConsentManager({ googleAnalyticsId, googleTagManagerId, metaPixe
 
   useEffect(() => {
     const saved = window.localStorage.getItem(storageKey);
-    const initialChoice = saved === "all" || saved === "analytics" || saved === "essential"
-      ? saved
-      : "essential";
-    if (!saved) window.localStorage.setItem(storageKey, initialChoice);
-    setChoice(initialChoice);
+    const hasSavedChoice = saved === "all" || saved === "analytics" || saved === "essential";
+    setChoice(hasSavedChoice ? saved : null);
+    setEditing(!hasSavedChoice);
     setReady(true);
   }, []);
 
