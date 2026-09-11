@@ -5,6 +5,7 @@ import Script from "next/script";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { trackAnalytics, trackClarity, trackMeta } from "@/lib/tracking";
+import { captureMarketingAttribution, clearMarketingAttribution } from "@/lib/attribution";
 
 type ConsentChoice = "all" | "analytics" | "essential";
 const storageKey = "ait_tracking_consent_v1";
@@ -19,12 +20,25 @@ export function ConsentManager({ googleAnalyticsId, googleTagManagerId, metaPixe
   const marketingAllowed = choice === "all";
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(storageKey);
-    const hasSavedChoice = saved === "all" || saved === "analytics" || saved === "essential";
-    setChoice(hasSavedChoice ? saved : null);
-    setEditing(!hasSavedChoice);
+    let saved: string | null = null;
+    try { saved = window.localStorage.getItem(storageKey); } catch { /* Ask for consent when storage is blocked. */ }
+    const savedChoice = saved === "all" || saved === "analytics" || saved === "essential" ? saved : null;
+    setChoice(savedChoice);
+    setEditing(!savedChoice);
     setReady(true);
   }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    window.gtag?.("consent", "update", {
+      analytics_storage: analyticsAllowed ? "granted" : "denied",
+      ad_storage: marketingAllowed ? "granted" : "denied",
+      ad_user_data: marketingAllowed ? "granted" : "denied",
+      ad_personalization: marketingAllowed ? "granted" : "denied",
+    });
+    if (analyticsAllowed) captureMarketingAttribution(marketingAllowed);
+    else clearMarketingAttribution();
+  }, [ready, pathname, analyticsAllowed, marketingAllowed]);
 
   useEffect(() => {
     const openSettings = () => setEditing(true);
@@ -79,6 +93,7 @@ export function ConsentManager({ googleAnalyticsId, googleTagManagerId, metaPixe
       // The choice still applies for this visit when storage is unavailable.
     }
     window.dispatchEvent(new CustomEvent("ait:tracking-consent-changed", { detail: next }));
+    if (next !== "all") clearMarketingAttribution();
 
     const removesLoadedTracking = choice === "all" && next !== "all"
       || choice === "analytics" && next === "essential";
@@ -86,12 +101,13 @@ export function ConsentManager({ googleAnalyticsId, googleTagManagerId, metaPixe
   }
 
   return <>
+    {analyticsAllowed && <Script id="ait-google-consent" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=gtag;gtag('consent','default',{analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});gtag('consent','update',{analytics_storage:'granted',ad_storage:'${marketingAllowed ? "granted" : "denied"}',ad_user_data:'${marketingAllowed ? "granted" : "denied"}',ad_personalization:'${marketingAllowed ? "granted" : "denied"}'});`}</Script>}
     {analyticsAllowed && googleTagManagerId && <>
       <Script id="ait-google-tag-manager" strategy="afterInteractive">{`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${googleTagManagerId}');`}</Script>
     </>}
     {analyticsAllowed && googleAnalyticsId && <>
       <Script src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`} strategy="afterInteractive" />
-      <Script id="ait-google-analytics" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=gtag;gtag('consent','default',{analytics_storage:'granted',ad_storage:'${marketingAllowed ? "granted" : "denied"}',ad_user_data:'${marketingAllowed ? "granted" : "denied"}',ad_personalization:'${marketingAllowed ? "granted" : "denied"}'});gtag('js',new Date());gtag('config','${googleAnalyticsId}',{anonymize_ip:true});`}</Script>
+      <Script id="ait-google-analytics" strategy="afterInteractive">{`gtag('js',new Date());gtag('config','${googleAnalyticsId}',{anonymize_ip:true});`}</Script>
     </>}
     {marketingAllowed && <Script id="ait-meta-pixel" strategy="afterInteractive">{`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${metaPixelId}');fbq('track','PageView');`}</Script>}
     {analyticsAllowed && clarityProjectId && <Script id="ait-microsoft-clarity" strategy="lazyOnload">{`(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/'+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,'clarity','script','${clarityProjectId}');clarity('consentv2',{ad_Storage:'${marketingAllowed ? "granted" : "denied"}',analytics_Storage:'granted'});`}</Script>}

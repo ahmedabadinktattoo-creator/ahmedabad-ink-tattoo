@@ -23,7 +23,7 @@ function doPost(event) {
         lead.phone || "", lead.email || "", sourceLabel(lead.source, lead.medium), lead.medium || "other",
         lead.campaign || "", "", "", lead.landingPage || "", lead.utmSource || lead.source || "",
         lead.utmMedium || lead.medium || "", lead.utmCampaign || lead.campaign || "", lead.utmContent || "",
-        lead.utmTerm || "", "Unassigned", lead.stage || "New", "", "", "", "", "",
+        lead.utmTerm || "", "Studio owner", "New", "", "", "", "", "",
         lead.style || "", "", "", "", lead.marketingConsent || "No", "", new Date().toISOString(),
         [lead.placement, lead.size].filter(Boolean).join(" · "),
         lead.gclid || "", lead.gbraid || "", lead.wbraid || "", lead.fbclid || "",
@@ -31,10 +31,13 @@ function doPost(event) {
 
       const ids = sheet.getRange(FIRST_DATA_ROW, 1, MAX_PIPELINE_ROW - FIRST_DATA_ROW + 1, 1).getDisplayValues().flat();
       const existingIndex = ids.indexOf(String(lead.reference));
+      // Delivery retries must never overwrite staff work, formulas, or attribution.
+      // The reference identifies an immutable website submission, not a CRM edit.
+      if (existingIndex >= 0) return jsonResponse({ ok: true, row: FIRST_DATA_ROW + existingIndex, duplicate: true });
       const emptyIndex = ids.findIndex(function (id) { return !id; });
       const row = existingIndex >= 0 ? FIRST_DATA_ROW + existingIndex : FIRST_DATA_ROW + emptyIndex;
       if (row < FIRST_DATA_ROW) throw new Error("Marketing pipeline is full");
-      sheet.getRange(row, 1, 1, values.length).setValues([values]);
+      sheet.getRange(row, 1, 1, values.length).setValues([values.map(safeCell)]);
       return jsonResponse({ ok: true, row: row });
     } finally {
       lock.releaseLock();
@@ -45,6 +48,11 @@ function doPost(event) {
   }
 }
 
+function safeCell(value) {
+  const text = String(value == null ? "" : value);
+  return /^[\s]*[=+@-]/.test(text) ? "'" + text : text;
+}
+
 function splitName(name) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   return { first: parts.shift() || "", last: parts.join(" ") };
@@ -53,9 +61,10 @@ function splitName(name) {
 function sourceLabel(source, medium) {
   const normalizedSource = String(source || "").toLowerCase();
   const normalizedMedium = String(medium || "").toLowerCase();
-  if (normalizedSource === "google" && normalizedMedium !== "paid_search") return "Google Organic";
-  if (normalizedSource === "facebook" && normalizedMedium !== "paid_social") return "Facebook Organic";
-  if (normalizedSource === "instagram" && normalizedMedium !== "paid_social") return "Instagram Organic";
+  const paid = ["paid_search", "paid_social", "cpc", "ppc", "paid", "paidsocial"].includes(normalizedMedium);
+  if (normalizedSource === "google" && !paid) return "Google Organic";
+  if (normalizedSource === "facebook" && !paid) return "Facebook Organic";
+  if (normalizedSource === "instagram" && !paid) return "Instagram Organic";
   if (normalizedSource === "pinterest" && normalizedMedium === "paid_social") return "Other";
   const labels = {
     google: "Google Ads", facebook: "Meta Ads", instagram: "Meta Ads", messenger: "Meta Ads",

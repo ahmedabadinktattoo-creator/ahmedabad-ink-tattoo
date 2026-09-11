@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { SignOutButton } from "@/components/sign-out-button";
 import { getSupabaseAdmin, hasBookingBackend } from "@/lib/supabase-admin";
 import { createClient, hasPublicSupabase, requireAdmin, requireUser } from "@/lib/supabase/server";
-import { addBlogPost, addPortfolioEntry, updateBookingStatus, updateEnquiryStatus } from "./actions";
+import { addBlogPost, addPortfolioEntry, updateBookingStatus, updateEnquiryStatus, retryEnquiryDelivery } from "./actions";
 
 export const metadata: Metadata = { title: "Studio Admin", robots: { index: false, follow: false } };
 
@@ -20,6 +20,8 @@ type AdminEnquiry = {
   id: string; reference: string; created_at: string; customer_name: string; email: string; phone: string;
   tattoo_style: string; placement: string; approximate_size: string; idea: string; status: string;
   notification_delivery: { customer?: boolean; studio?: boolean } | null;
+  marketing_event_id?: string | null;
+  marketing_delivery?: { crm?: string; meta?: string; attempts?: number };
 };
 
 const demoBookings: AdminBooking[] = [{
@@ -45,7 +47,7 @@ export default async function AdminDashboard() {
     const supabase = await createClient();
     const [bookingsResult, enquiriesResult, portfolioResult, postsResult] = await Promise.all([
       supabase.from("consultation_bookings").select("id,reference,customer_name,email,phone,tattoo_style,artist_slug,appointment_date,appointment_time,status,deposit_amount,placement,approximate_size,idea,reference_path").order("appointment_date", { ascending: true }).limit(50),
-      supabase.from("consultation_enquiries").select("id,reference,created_at,customer_name,email,phone,tattoo_style,placement,approximate_size,idea,status,notification_delivery").order("created_at", { ascending: false }).limit(100),
+      supabase.from("consultation_enquiries").select("id,reference,created_at,customer_name,email,phone,tattoo_style,placement,approximate_size,idea,status,notification_delivery,marketing_event_id,marketing_delivery").order("created_at", { ascending: false }).limit(100),
       supabase.from("portfolio_entries").select("id", { count: "exact", head: true }),
       supabase.from("blog_posts").select("id", { count: "exact", head: true }),
     ]);
@@ -75,7 +77,7 @@ export default async function AdminDashboard() {
       <div className="admin-table"><div className="table-row table-head enquiry-expanded"><span>Client</span><span>Received</span><span>Tattoo request</span><span>Idea</span><span>Status</span></div>
         {enquiries.length ? enquiries.map((enquiry) => <div className="table-row enquiry-expanded" key={enquiry.id}>
           <span><strong>{enquiry.customer_name}</strong><small>{enquiry.reference}<br /><a href={`mailto:${enquiry.email}`}>{enquiry.email}</a><br /><a href={`https://wa.me/${enquiry.phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">{enquiry.phone} ↗</a></small></span>
-          <span>{new Date(enquiry.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}<small>{new Date(enquiry.created_at).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}<br />Email: {enquiry.notification_delivery?.customer && enquiry.notification_delivery?.studio ? "delivered" : "dashboard only"}</small></span>
+          <span>{new Date(enquiry.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", timeZone: "Asia/Kolkata" })}<small>{new Date(enquiry.created_at).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Kolkata" })}<br />Email: {enquiry.notification_delivery?.customer && enquiry.notification_delivery?.studio ? "delivered" : "dashboard only"}<br />CRM: {enquiry.marketing_delivery?.crm ?? "not recorded"}<br />Meta: {enquiry.marketing_delivery?.meta ?? "not recorded"}</small>{enquiry.marketing_event_id && (enquiry.marketing_delivery?.crm !== "sent" || !["sent", "no_consent", "expired"].includes(enquiry.marketing_delivery?.meta ?? "")) && <form action={retryEnquiryDelivery}><input type="hidden" name="reference" value={enquiry.reference} /><button>Retry incomplete deliveries</button><small>Retries CRM/Meta only, not customer emails.</small></form>}</span>
           <span>{enquiry.tattoo_style}<small>{enquiry.placement} · {enquiry.approximate_size}</small></span>
           <span><small className="booking-detail">{enquiry.idea}</small></span>
           <span><form action={updateEnquiryStatus}><input type="hidden" name="id" value={enquiry.id} /><select name="status" defaultValue={enquiry.status}><option value="new">New</option><option value="contacted">Contacted</option><option value="booked">Booked</option><option value="closed">Closed</option></select><button>Save</button></form></span>

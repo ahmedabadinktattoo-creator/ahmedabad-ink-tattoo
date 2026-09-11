@@ -17,6 +17,7 @@ export type MarketingAttribution = {
 
 const attributionStorageKey = "ait_marketing_attribution_v1";
 const consentStorageKey = "ait_tracking_consent_v1";
+let lastCapturedHref = "";
 
 const clean = (value: string | null | undefined, max = 500) => (value ?? "").trim().slice(0, max);
 
@@ -42,7 +43,8 @@ function mediumFrom(url: URL, source: string, referrer: string) {
   const explicit = clean(url.searchParams.get("utm_medium"), 100).toLowerCase();
   if (explicit) return explicit;
   if (url.searchParams.has("gclid") || url.searchParams.has("gbraid") || url.searchParams.has("wbraid")) return "paid_search";
-  if (url.searchParams.has("fbclid")) return "paid_social";
+  // A Facebook click ID can also come from an organic link.
+  if (url.searchParams.has("fbclid")) return "social";
   if (!referrer || source === "direct") return "direct";
   if (source === "google") return "organic_search";
   if (["facebook", "instagram", "pinterest"].includes(source)) return "organic_social";
@@ -58,6 +60,23 @@ export function hasMarketingConsent() {
   }
 }
 
+export function hasAnalyticsConsent() {
+  if (typeof window === "undefined") return false;
+  try {
+    return ["all", "analytics"].includes(window.localStorage.getItem(consentStorageKey) ?? "");
+  } catch {
+    return false;
+  }
+}
+
+export function clearMarketingAttribution() {
+  lastCapturedHref = "";
+  try {
+    window.localStorage.removeItem(attributionStorageKey);
+    window.sessionStorage.removeItem(attributionStorageKey);
+  } catch { /* Storage may be unavailable. */ }
+}
+
 export function grantMarketingConsent() {
   if (typeof window === "undefined") return;
   try {
@@ -70,8 +89,19 @@ export function grantMarketingConsent() {
 
 export function captureMarketingAttribution(marketingConsent: boolean): MarketingAttribution {
   if (typeof window === "undefined") return emptyAttribution();
+  if (!marketingConsent && !hasAnalyticsConsent()) {
+    clearMarketingAttribution();
+    return emptyAttribution();
+  }
   const url = new URL(window.location.href);
-  const referrer = clean(document.referrer, 500);
+  let referrer = "";
+  try {
+    const referringUrl = new URL(document.referrer);
+    // Strip query strings; they can contain personal information.
+    if (referringUrl.hostname.replace(/^www\./, "") !== url.hostname.replace(/^www\./, "")) {
+      referrer = clean(`${referringUrl.origin}${referringUrl.pathname}`, 500);
+    }
+  } catch { /* Direct visit. */ }
   const source = sourceFrom(url, referrer);
   const current: MarketingAttribution = {
     source,
@@ -90,11 +120,17 @@ export function captureMarketingAttribution(marketingConsent: boolean): Marketin
     fbclid: marketingConsent ? clean(url.searchParams.get("fbclid"), 250) : "",
   };
 
-  const hasCampaignContext = Boolean(current.utmSource || current.utmCampaign || current.gclid || current.gbraid || current.wbraid || current.fbclid || referrer);
   try {
-    const stored = JSON.parse(window.localStorage.getItem(attributionStorageKey) ?? "null") as MarketingAttribution | null;
-    if (!hasCampaignContext && stored) return { ...stored, landingPage: current.landingPage };
-    window.localStorage.setItem(attributionStorageKey, JSON.stringify(current));
+    // Remove the old indefinite store. Attribution now lasts for this tab/session only.
+    window.localStorage.removeItem(attributionStorageKey);
+    const stored = JSON.parse(window.sessionStorage.getItem(attributionStorageKey) ?? "null") as MarketingAttribution | null;
+    const newCampaign = lastCapturedHref !== url.href && Boolean(current.utmSource || current.utmCampaign || current.gclid || current.gbraid || current.wbraid || current.fbclid);
+    const externalEntry = !lastCapturedHref && Boolean(referrer);
+    const selected = stored && !newCampaign && !externalEntry ? { ...emptyAttribution(), ...stored } : current;
+    if (!marketingConsent) Object.assign(selected, { gclid: "", gbraid: "", wbraid: "", fbclid: "" });
+    window.sessionStorage.setItem(attributionStorageKey, JSON.stringify(selected));
+    lastCapturedHref = url.href;
+    return selected;
   } catch {
     // Attribution remains available for this submission when storage is blocked.
   }
