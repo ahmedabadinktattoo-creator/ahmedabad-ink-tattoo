@@ -3,8 +3,16 @@
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { hasPublicSupabase, requireAdmin } from "@/lib/supabase/server";
+import { retryMarketingDelivery } from "@/lib/marketing-integrations";
 
 async function assertAdmin() { if (!hasPublicSupabase() || !await requireAdmin()) throw new Error("Administrator access required."); }
+export async function retryEnquiryDelivery(formData: FormData) {
+  await assertAdmin();
+  const reference = String(formData.get("reference") ?? "");
+  if (!/^AIT-E-[A-F0-9]{8}$/.test(reference)) throw new Error("Invalid enquiry reference.");
+  await retryMarketingDelivery(reference);
+  revalidatePath("/admin");
+}
 export async function updateBookingStatus(formData: FormData) { await assertAdmin(); const id = String(formData.get("id")); const status = String(formData.get("status")); if (!new Set(["confirmed", "cancelled", "completed"]).has(status)) throw new Error("Invalid status."); const { error } = await getSupabaseAdmin().from("consultation_bookings").update({ status }).eq("id", id); if (error) throw new Error("Booking could not be updated."); revalidatePath("/admin"); }
 export async function updateEnquiryStatus(formData: FormData) { await assertAdmin(); const id = String(formData.get("id")); const status = String(formData.get("status")); if (!new Set(["new", "contacted", "booked", "closed"]).has(status)) throw new Error("Invalid status."); const { error } = await getSupabaseAdmin().from("consultation_enquiries").update({ status, updated_at: new Date().toISOString() }).eq("id", id); if (error) throw new Error("Enquiry could not be updated."); revalidatePath("/admin"); }
 export async function addPortfolioEntry(formData: FormData) { await assertAdmin(); const title = String(formData.get("title") ?? "").trim(); const category = String(formData.get("category") ?? "").trim(); const imageUrl = String(formData.get("imageUrl") ?? "").trim(); if (!title || !category || !imageUrl.startsWith("https://")) throw new Error("Complete all portfolio fields."); const { error } = await getSupabaseAdmin().from("portfolio_entries").insert({ title, category, image_url: imageUrl, published: true }); if (error) throw new Error("Portfolio item could not be added."); revalidatePath("/admin"); revalidatePath("/portfolio"); }

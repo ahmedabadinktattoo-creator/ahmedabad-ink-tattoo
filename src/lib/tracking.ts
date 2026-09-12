@@ -1,3 +1,5 @@
+import { hasAnalyticsConsent, hasMarketingConsent } from "./attribution";
+
 type TrackingParameters = Record<string, string | number | boolean>;
 
 declare global {
@@ -10,19 +12,19 @@ declare global {
 }
 
 export function trackAnalytics(eventName: string, parameters: TrackingParameters = {}) {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || !hasAnalyticsConsent()) return;
   window.dataLayer?.push({ event: "ait_event", ait_event_name: eventName, ...parameters });
   window.gtag?.("event", eventName, parameters);
 }
 
 export function trackMeta(eventName: string, parameters: TrackingParameters = {}, eventId?: string) {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || !hasMarketingConsent()) return;
   if (eventId) window.fbq?.("track", eventName, parameters, { eventID: eventId });
   else window.fbq?.("track", eventName, parameters);
 }
 
 export function trackClarity(eventName: string) {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || !hasAnalyticsConsent()) return;
   window.clarity?.("event", eventName);
 }
 

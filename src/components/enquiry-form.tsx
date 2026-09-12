@@ -20,12 +20,12 @@ export function EnquiryForm() {
       if (values.marketingConsent) grantMarketingConsent();
       const attribution = captureMarketingAttribution(marketingConsent);
       const response = await fetch("/api/enquiries", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...values, marketingConsent, attribution, eventId, startedAt: startedAt.current }) });
-      const result = await response.json() as { error?: string; notified?: boolean; reference?: string; eventId?: string };
+      const result = await response.json() as { error?: string; saved?: boolean; notified?: boolean; reference?: string; eventId?: string };
       if (!response.ok) throw new Error(result.error ?? "Enquiry could not be sent.");
       setValues(initialState);
       startedAt.current = Date.now();
       setStatus(result.notified ? "sent" : "saved");
-      if (result.reference) trackEnquiryLead(result.reference, result.eventId ?? eventId);
+      if (result.saved && result.reference) trackEnquiryLead(result.reference, result.eventId ?? eventId);
     } catch {
       setStatus("error");
     }
