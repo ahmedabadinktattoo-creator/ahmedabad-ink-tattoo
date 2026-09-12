@@ -31,3 +31,9 @@ Report real enquiries, qualified enquiries, consultations, deposits, confirmed b
 - GA4 property `421316530` has contact_phone and contact_whatsapp marked as key events. On 11 September they were not yet offered in the Google Ads import picker; their secondary imports remain unfinished. Do not substitute generic page/click events or create duplicate lead actions.
 - Remaining launch gates: verify the phone click on a real phone, finish secondary contact imports, inspect Meta browser/server deduplication, and approve campaign-specific goals and campaign budget. The Meta server acknowledgement alone does not prove browser/server deduplication.
 - Automated checks: 11 focused tests passed; lint and production build passed. Keep campaigns paused until remaining verification and launch approval are complete.
+
+## Follow-up verification — 12 September 2026
+
+- Google Ads import picker for property 421316530 still offers only `contact_click` when filtered by `contact_`; neither separate contact event is available. No substitute or duplicate conversion was created.
+- Meta Lead event details for 15 August–11 September show one browser event and three server events received, event match quality 7.4/10, and **Event deduplication: Not available**. These aggregate totals do not prove deduplication of the controlled test.
+- GitHub pull request: https://github.com/ahmedabadinktattoo-creator/ahmedabad-ink-tattoo/pull/1 . Open against main; all three Vercel preview deployment checks and the preview comment check passed. The owner can review and merge; main was not modified directly.
