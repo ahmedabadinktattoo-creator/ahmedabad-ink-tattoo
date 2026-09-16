@@ -66,6 +66,9 @@ export async function POST(request: Request) {
     if (backendReady) {
       const { error } = await getSupabaseAdmin().from("consultation_enquiries").insert({
         reference,
+        created_at: createdAt,
+        marketing_event_id: eventId,
+        marketing_delivery: { crm: "pending", meta: marketingConsent ? "pending" : "no_consent", attempts: 0 },
         customer_name: name,
         email,
         phone,
@@ -113,6 +116,9 @@ export async function POST(request: Request) {
       clientIp: sanitize(request.headers.get("x-forwarded-for")?.split(",")[0], 64),
       fbp: marketingConsent ? sanitize(cookieValue(request, "_fbp"), 250) : "",
       fbc: marketingConsent ? sanitize(cookieValue(request, "_fbc"), 250) : "",
+    }).catch(() => {
+      console.error("marketing.delivery_pending", { reference });
+      return { crm: "pending", meta: "pending" };
     }) : Promise.resolve({ crm: "not_saved", meta: "not_saved" });
 
     if (!emailReady) {
