@@ -11,6 +11,14 @@ const storage = () => {
   return { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), removeItem: (key) => values.delete(key) };
 };
 const consentKey = 'ait_tracking_consent_v1';
+test('WhatsApp numbers include India prefix without corrupting explicit international numbers', () => {
+  const { whatsappNumber } = loadModule('../src/lib/phone.ts', {});
+  for (const value of ['8866848681', '08866848681', '+91 88668 48681', '00918866848681']) {
+    assert.equal(whatsappNumber(value), '918866848681');
+  }
+  assert.equal(whatsappNumber('+44 7700 900123'), '447700900123');
+  assert.equal(whatsappNumber('+1 202 555 0123'), '12025550123');
+});
 const attributionKey = 'ait_marketing_attribution_v1';
 function loadModule(path, context, dependencies = {}) {
   const source = readFileSync(new URL(path, import.meta.url), 'utf8');

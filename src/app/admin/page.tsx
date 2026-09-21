@@ -1,3 +1,4 @@
+import { whatsappNumber } from "@/lib/phone";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
@@ -76,7 +77,7 @@ export default async function AdminDashboard() {
     <section className="admin-panel" id="enquiries"><div className="admin-heading"><div><p className="eyebrow gold-text">Lead inbox</p><h2>Website enquiries</h2></div><p>Every completed enquiry form is stored here, even if an email notification has a delivery problem.</p></div>
       <div className="admin-table"><div className="table-row table-head enquiry-expanded"><span>Client</span><span>Received</span><span>Tattoo request</span><span>Idea</span><span>Status</span></div>
         {enquiries.length ? enquiries.map((enquiry) => <div className="table-row enquiry-expanded" key={enquiry.id}>
-          <span><strong>{enquiry.customer_name}</strong><small>{enquiry.reference}<br /><a href={`mailto:${enquiry.email}`}>{enquiry.email}</a><br /><a href={`https://wa.me/${enquiry.phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">{enquiry.phone} ↗</a></small></span>
+          <span><strong>{enquiry.customer_name}</strong><small>{enquiry.reference}<br /><a href={`mailto:${enquiry.email}`}>{enquiry.email}</a><br /><a href={`https://wa.me/${whatsappNumber(enquiry.phone)}`} target="_blank" rel="noreferrer">{enquiry.phone} ↗</a></small></span>
           <span>{new Date(enquiry.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", timeZone: "Asia/Kolkata" })}<small>{new Date(enquiry.created_at).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", timeZone: "Asia/Kolkata" })}<br />Email: {enquiry.notification_delivery?.customer && enquiry.notification_delivery?.studio ? "delivered" : "dashboard only"}<br />CRM: {enquiry.marketing_delivery?.crm ?? "not recorded"}<br />Meta: {enquiry.marketing_delivery?.meta ?? "not recorded"}</small>{enquiry.marketing_event_id && (enquiry.marketing_delivery?.crm !== "sent" || !["sent", "no_consent", "expired"].includes(enquiry.marketing_delivery?.meta ?? "")) && <form action={retryEnquiryDelivery}><input type="hidden" name="reference" value={enquiry.reference} /><button>Retry incomplete deliveries</button><small>Retries CRM/Meta only, not customer emails.</small></form>}</span>
           <span>{enquiry.tattoo_style}<small>{enquiry.placement} · {enquiry.approximate_size}</small></span>
           <span><small className="booking-detail">{enquiry.idea}</small></span>
@@ -87,7 +88,7 @@ export default async function AdminDashboard() {
     <section className="admin-panel" id="bookings"><div className="admin-heading"><div><p className="eyebrow gold-text">Booking desk</p><h2>Appointments</h2></div><Link className="line-link" href="/book">Create booking ↗</Link></div>
       <div className="admin-table"><div className="table-row table-head booking-expanded"><span>Client</span><span>Appointment</span><span>Artist / style</span><span>Deposit</span><span>Status</span><span>Idea & reference</span></div>
         {bookings.length ? bookings.map((booking) => <div className="table-row booking-expanded" key={booking.id}>
-          <span><strong>{booking.customer_name}</strong><small>{booking.reference}<br />{booking.email}<br /><a href={`https://wa.me/${booking.phone.replace(/\D/g, "")}`}>{booking.phone} ↗</a></small></span>
+          <span><strong>{booking.customer_name}</strong><small>{booking.reference}<br />{booking.email}<br /><a href={`https://wa.me/${whatsappNumber(booking.phone)}`}>{booking.phone} ↗</a></small></span>
           <span>{formatDate(booking.appointment_date)}<small>{formatTime(booking.appointment_time)}<br />{booking.placement} · {booking.approximate_size}</small></span>
           <span>{capitalize(booking.artist_slug)}<small>{booking.tattoo_style}</small></span>
           <span>₹{(booking.deposit_amount / 100).toLocaleString("en-IN")}</span>

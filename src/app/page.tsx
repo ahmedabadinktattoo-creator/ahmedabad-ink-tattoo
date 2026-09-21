@@ -85,7 +85,7 @@ export default function Home() {
 
       <section className="home-artists section-dark">
         <div className="section-heading"><div><p className="eyebrow gold-text">The artists</p><h2>Different hands.<br /><em>One standard.</em></h2></div><p className="heading-note">Choose the artist whose work feels closest to the idea in your head.</p></div>
-        <div className="artist-grid">{artists.map((artist, index) => <ArtistCard artist={artist} priority={index === 0} key={artist.slug} />)}</div>
+        <div className="artist-grid">{artists.map((artist) => <ArtistCard artist={artist} key={artist.slug} />)}</div>
       </section>
 
       <section className="google-trust section">
