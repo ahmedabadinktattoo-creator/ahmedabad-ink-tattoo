@@ -1,3 +1,4 @@
+import { whatsappNumber } from "@/lib/phone";
 import { NextResponse } from "next/server";
 import type { MarketingAttribution } from "@/lib/attribution";
 import { runMarketingLeadIntegrations } from "@/lib/marketing-integrations";
@@ -136,7 +137,7 @@ export async function POST(request: Request) {
     }
 
     const reply = `<div style="font-family:Arial,sans-serif;color:#181714;line-height:1.6"><h1>We received your tattoo enquiry</h1><p>Hi ${escapeHtml(name)},</p><p>Thank you for sharing your idea with Ahmedabad Ink Tattoo. Our team will review the details and reply by email or WhatsApp.</p><p><a href="https://www.ahmedabadinktattoo.com/portfolio">Explore recent work</a> · <a href="https://wa.me/918866848681">Message the studio</a></p></div>`;
-    const studio = `<div style="font-family:Arial,sans-serif;color:#181714;line-height:1.6"><h1>New website enquiry</h1><p><strong>Reference:</strong> ${reference}</p><p><strong>${escapeHtml(name)}</strong><br><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a><br><a href="https://wa.me/${phone.replace(/\D/g, "")}">${escapeHtml(phone)}</a></p><p><strong>Style:</strong> ${escapeHtml(style)}<br><strong>Placement:</strong> ${escapeHtml(placement)}<br><strong>Approx. size:</strong> ${escapeHtml(size)}</p><p><strong>Idea</strong><br>${escapeHtml(idea).replace(/\n/g, "<br>")}</p><p><a href="https://www.ahmedabadinktattoo.com/admin#enquiries">Open studio dashboard</a></p></div>`;
+    const studio = `<div style="font-family:Arial,sans-serif;color:#181714;line-height:1.6"><h1>New website enquiry</h1><p><strong>Reference:</strong> ${reference}</p><p><strong>${escapeHtml(name)}</strong><br><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a><br><a href="https://wa.me/${whatsappNumber(phone)}">${escapeHtml(phone)}</a></p><p><strong>Style:</strong> ${escapeHtml(style)}<br><strong>Placement:</strong> ${escapeHtml(placement)}<br><strong>Approx. size:</strong> ${escapeHtml(size)}</p><p><strong>Idea</strong><br>${escapeHtml(idea).replace(/\n/g, "<br>")}</p><p><a href="https://www.ahmedabadinktattoo.com/admin#enquiries">Open studio dashboard</a></p></div>`;
     const payloads = [
       { from, to: [email], subject: "Ahmedabad Ink received your enquiry", html: reply },
       { from, to: [studioEmail], reply_to: email, subject: `New tattoo enquiry · ${name}`, html: studio },

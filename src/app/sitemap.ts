@@ -1,3 +1,14 @@
 import type { MetadataRoute } from "next";
 import { artists } from "@/data/studio";
-export default function sitemap(): MetadataRoute.Sitemap { const base = "https://ahmedabadinktattoo.com"; return ["", "/about", "/services", "/portfolio", "/artists", "/aftercare", "/faq", "/contact", "/blog", "/blog/first-tattoo-guide", "/blog/tattoo-aftercare-guide", "/privacy", "/terms", "/book", ...artists.map((artist) => `/artists/${artist.slug}`)].map((path) => ({ url: `${base}${path}`, lastModified: new Date(), changeFrequency: path === "" ? "weekly" : "monthly" })); }
+import { journalPosts } from "@/data/journal";
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  const base = "https://www.ahmedabadinktattoo.com";
+  const paths = ["", "/about", "/services", "/portfolio", "/artists", "/aftercare", "/faq", "/contact", "/blog", "/privacy", "/terms", "/book",
+    ...Object.keys(journalPosts).map((slug) => `/blog/${slug}`),
+    ...artists.map((artist) => `/artists/${artist.slug}`)];
+  return paths.map((path) => ({
+    url: `${base}${path}`,
+    changeFrequency: path === "" ? "weekly" : "monthly",
+  }));
+}
