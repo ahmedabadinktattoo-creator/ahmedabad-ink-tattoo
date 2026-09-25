@@ -1,4 +1,6 @@
 export const studioLinks = {
+  hoursDisplay: "Open daily · 10:00 AM–10:00 PM (IST)",
+  openingHours: "Mo-Su 10:00-22:00",
   phoneDisplay: "+91 88668 48681",
   phone: "tel:+918866848681",
   whatsapp: "https://wa.me/918866848681?text=Hi%20Ahmedabad%20Ink%20Tattoo%2C%20I%20would%20like%20to%20book%20a%20consultation.",

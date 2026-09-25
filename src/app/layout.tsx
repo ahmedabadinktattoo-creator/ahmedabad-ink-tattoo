@@ -34,6 +34,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     name: "Ahmedabad Ink Tattoo",
     url: "https://ahmedabadinktattoo.com",
     foundingDate: "2014",
+    openingHours: studioLinks.openingHours,
     telephone: "+91 88668 48681",
     address: {
       "@type": "PostalAddress",

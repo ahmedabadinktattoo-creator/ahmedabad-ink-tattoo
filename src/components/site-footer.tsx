@@ -14,7 +14,7 @@ export function SiteFooter() {
         <div>
           <p className="footer-label">Visit</p>
           <address>FF/109, Silver Square<br />Opp. Dipak School, near Gangotri Circle Road<br />Nikol, Ahmedabad, Gujarat 382350</address>
-          <p className="muted">Open daily · By appointment</p>
+          <p className="muted">{studioLinks.hoursDisplay}<br />By appointment</p>
           <a href={studioLinks.maps} target="_blank" rel="noreferrer">Open in Google Maps ↗</a>
         </div>
         <div>

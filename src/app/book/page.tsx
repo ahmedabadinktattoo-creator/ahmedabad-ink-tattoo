@@ -29,6 +29,7 @@ export default function BookingPage() {
           <a className="button whatsapp-button" href={studioLinks.whatsapp} target="_blank" rel="noreferrer">Chat on WhatsApp</a>
         </div>
         <p className="booking-phone">No login needed · No payment at this step<br />Prefer to call? <a href={studioLinks.phone}>{studioLinks.phoneDisplay}</a></p>
+        <p className="booking-phone">{studioLinks.hoursDisplay}</p>
       </header>
 
       <section id="enquiry" className="enquiry-section section" aria-labelledby="enquiry-title">
