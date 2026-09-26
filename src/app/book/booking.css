@@ -1,6 +1,10 @@
-.direct-booking-page .direct-booking-hero { min-height: auto; padding-top: 145px; padding-bottom: 56px; }
-.direct-booking-page .direct-booking-hero h1 { font-size: clamp(3.2rem, 7vw, 7rem); line-height: 1; }
-#enquiry { scroll-margin-top: 95px; padding-top: 55px; }
+.direct-booking-page .direct-booking-hero { min-height: auto; padding-top: 115px; padding-bottom: 20px; }
+.direct-booking-page .direct-booking-hero h1 { font-size: clamp(2.4rem, 5vw, 4rem); line-height: 1.1; }
+.direct-booking-page #enquiry { scroll-margin-top: 95px; padding-top: 0; display: block; }
+.direct-booking-page .booking-form-title { font-size: 1.5rem; margin-bottom: 16px; }
+.direct-booking-page .enquiry-form { margin-top: 0; }
+.direct-booking-page .form-grid input[type="date"] { color-scheme: dark; min-width: 0; }
+.direct-booking-page #slot-help { font-size: 14px; line-height: 1.6; }
 .booking-confirmation h3 { font-family: var(--font-display); font-size: 2.4rem; line-height: 1.15; margin: 20px 0; }
 .booking-confirmation p, .booking-confirmation li { color: #c6c1b7; line-height: 1.8; }
 .booking-confirmation ol { padding-left: 22px; margin: 24px 0; }
@@ -8,7 +12,7 @@
 .booking-confirmation .button { margin-top: 20px; }
 .form-error-message a { text-decoration: underline; }
 @media(max-width:700px) {
-  .direct-booking-page .direct-booking-hero { padding: 115px 25px 40px; }
+  .direct-booking-page .direct-booking-hero { padding: 100px 25px 16px; }
   .direct-booking-page .enquiry-form input, .direct-booking-page .enquiry-form select, .direct-booking-page .enquiry-form textarea { font-size: 16px; }
   .booking-confirmation .button { width: 100%; }
 }

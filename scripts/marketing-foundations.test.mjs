@@ -6,6 +6,20 @@ import test from 'node:test';
 import ts from 'typescript';
 
 const require = createRequire(import.meta.url);
+test('preferred consultation times respect India hours, real dates and lead time', () => {
+  const { consultationSlots, indiaDate, validatePreferredSlot, slotLabel } = loadModule('../src/lib/consultation-slots.ts', {});
+  const now = Date.parse('2026-09-26T10:00:00+05:30');
+  assert.equal(consultationSlots.length, 24);
+  assert.equal(consultationSlots[0], '10:00');
+  assert.equal(consultationSlots.at(-1), '21:30');
+  assert.equal(slotLabel('13:30'), '1:30 PM');
+  assert.equal(indiaDate(Date.parse('2026-09-26T20:00:00Z')), '2026-09-27');
+  assert.equal(validatePreferredSlot('', '', now), '');
+  assert.equal(validatePreferredSlot('2026-09-26', '11:00', now), '');
+  for (const [date, time] of [['2026-09-26','10:30'],['2026-09-25','12:00'],['2026-09-27','22:00'],['2026-02-30','11:00'],['2027-01-01','11:00'],['2026-09-27',''],['','12:00']]) {
+    assert.ok(validatePreferredSlot(date, time, now), `${date} ${time} must be rejected`);
+  }
+});
 const storage = () => {
   const values = new Map();
   return { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), removeItem: (key) => values.delete(key) };

@@ -1,4 +1,5 @@
 import { whatsappNumber } from "@/lib/phone";
+import { slotLabel, validatePreferredSlot } from "@/lib/consultation-slots";
 import { NextResponse } from "next/server";
 import type { MarketingAttribution } from "@/lib/attribution";
 import { runMarketingLeadIntegrations } from "@/lib/marketing-integrations";
@@ -48,8 +49,15 @@ export async function POST(request: Request) {
     const style = sanitize(data.style, 80);
     const placement = sanitize(data.placement, 80);
     const size = sanitize(data.size, 80);
-    const idea = sanitize(data.idea, 1500);
-    if (!name || !/^\S+@\S+\.\S+$/.test(email) || !phone || !style || !placement || !size || idea.length < 10) return NextResponse.json({ error: "Please complete every field." }, { status: 400 });
+    const rawIdea = sanitize(data.idea, 1500);
+    const preferredDate = sanitize(data.preferredDate, 10);
+    const preferredTime = sanitize(data.preferredTime, 5);
+    const slotError = validatePreferredSlot(preferredDate, preferredTime);
+    if (slotError) return NextResponse.json({ error: slotError }, { status: 400 });
+    const slotSummary = preferredDate ? `Requested consultation: ${preferredDate} at ${slotLabel(preferredTime)} IST (pending studio confirmation).` : "";
+    // Keep the preference with the enquiry details so existing admin views display it.
+    const idea = slotSummary ? `${slotSummary}\n\n${rawIdea}` : rawIdea;
+    if (!name || !/^\S+@\S+\.\S+$/.test(email) || !phone || !style || !placement || !size || rawIdea.length < 10) return NextResponse.json({ error: "Please complete every field." }, { status: 400 });
 
     const reference = `AIT-E-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
     const submittedEventId = sanitize(data.eventId, 80);
@@ -139,7 +147,7 @@ export async function POST(request: Request) {
     const reply = `<div style="font-family:Arial,sans-serif;color:#181714;line-height:1.6"><h1>We received your tattoo enquiry</h1><p>Hi ${escapeHtml(name)},</p><p>Thank you for sharing your idea with Ahmedabad Ink Tattoo. Our team will review the details and reply by email or WhatsApp.</p><p><a href="https://www.ahmedabadinktattoo.com/portfolio">Explore recent work</a> · <a href="https://wa.me/918866848681">Message the studio</a></p></div>`;
     const studio = `<div style="font-family:Arial,sans-serif;color:#181714;line-height:1.6"><h1>New website enquiry</h1><p><strong>Reference:</strong> ${reference}</p><p><strong>${escapeHtml(name)}</strong><br><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a><br><a href="https://wa.me/${whatsappNumber(phone)}">${escapeHtml(phone)}</a></p><p><strong>Style:</strong> ${escapeHtml(style)}<br><strong>Placement:</strong> ${escapeHtml(placement)}<br><strong>Approx. size:</strong> ${escapeHtml(size)}</p><p><strong>Idea</strong><br>${escapeHtml(idea).replace(/\n/g, "<br>")}</p><p><a href="https://www.ahmedabadinktattoo.com/admin#enquiries">Open studio dashboard</a></p></div>`;
     const payloads = [
-      { from, to: [email], subject: "Ahmedabad Ink received your enquiry", html: reply },
+      { from, to: [email], reply_to: studioEmail, subject: `Consultation request received · ${reference}`, html: reply + `<p style="font-family:Arial,sans-serif">Reference: ${reference}<br />${escapeHtml(slotSummary || "Our team will help you choose a suitable date.")}<br />Your appointment is not confirmed until our studio contacts you.</p>` },
       { from, to: [studioEmail], reply_to: email, subject: `New tattoo enquiry · ${name}`, html: studio },
     ];
     const results = await Promise.all(payloads.map(async (payload) => {

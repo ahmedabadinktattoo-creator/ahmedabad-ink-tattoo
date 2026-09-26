@@ -22,19 +22,13 @@ export default function BookingPage() {
     <div className="direct-booking-page">
       <header className="direct-booking-hero">
         <p className="eyebrow gold-text">Tattoo consultation · Nikol, Ahmedabad</p>
-        <h1>Your next tattoo.<br /><em>Start here.</em></h1>
-        <p>Have an idea—or just a question? Request a consultation for tattoos, body piercing or tattoo removal. Tell us a little about what you want and our studio team will guide you personally.</p>
-        <div className="direct-booking-actions">
-          <a className="button gold" href="#enquiry">Request a consultation</a>
-          <a className="button whatsapp-button" href={studioLinks.whatsapp} target="_blank" rel="noreferrer">Chat on WhatsApp</a>
-        </div>
-        <p className="booking-phone">No login needed · No payment at this step<br />Prefer to call? <a href={studioLinks.phone}>{studioLinks.phoneDisplay}</a></p>
-        <p className="booking-phone">{studioLinks.hoursDisplay}</p>
+        <h1>Book your <em>consultation.</em></h1>
+        <p>Choose a preferred time and share your idea. No login or payment needed. Our team will confirm your appointment personally.</p>
+        <p className="booking-phone">{studioLinks.hoursDisplay} · <a href={studioLinks.whatsapp} target="_blank" rel="noreferrer">WhatsApp</a> · <a href={studioLinks.phone}>Call us</a></p>
       </header>
 
       <section id="enquiry" className="enquiry-section section" aria-labelledby="enquiry-title">
-        <div className="section-index">Your consultation request</div>
-        <div><p className="eyebrow gold-text">One small step towards your idea</p><h2 id="enquiry-title">Tell us your idea.<br /><em>We’ll help shape it.</em></h2><p>Fill in the details below. If you haven’t decided on a style, choose “Not sure yet”. For placement or size, you can also write “Not sure”. We’ll reply by email or WhatsApp.</p><p>This is a consultation request, not a confirmed appointment. We’ll agree the service, quote and available date with you before booking.</p><EnquiryForm /></div>
+        <div><h2 id="enquiry-title" className="booking-form-title">Your visit. Your idea.</h2><EnquiryForm /></div>
       </section>
 
       <section className="booking-preparation section" aria-labelledby="prepare-title">
